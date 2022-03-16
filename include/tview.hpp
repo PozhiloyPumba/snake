@@ -1,11 +1,11 @@
 #ifndef TVIEW_HPP
 #define TVIEW_HPP
 
+#include <poll.h>
 #include <signal.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
-#include <poll.h>
 
 #include <functional>
 #include <utility>
@@ -30,18 +30,19 @@ namespace graphicInterface {
         inline void resetColor () const { printf ("\e[m"); }
         void drawHLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
         void drawVLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
+        void drawFrame ();
 
     public:
         TView (int fps = 120);
+        ~TView () override;
 
         static inline std::function<void ()> interruptHandler;
         static inline std::function<void ()> changeTermSizeHandler;
-
         void endHandler ();
 
-        ~TView () override;
+        std::pair<unsigned short, unsigned short> getTermSize () const override {   return virtSize_;   }
+        void paint (std::pair<unsigned short, unsigned short> &rabbit) override;
 
-        void drawFrame ();
         void run () override;
     };
 }  // namespace graphicInterface

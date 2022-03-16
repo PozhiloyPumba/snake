@@ -15,6 +15,9 @@ namespace graphicInterface {
 
         void drawScene ();
         void run () override;
+
+        std::pair<unsigned short, unsigned short> getTermSize () const override { return {0,0}; }   //TODO:
+        virtual void paint (std::pair<unsigned short, unsigned short> &rabbit) override {}    //TODO:
     };
 }  // namespace graphicInterface
 

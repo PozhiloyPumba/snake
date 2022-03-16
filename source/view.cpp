@@ -5,7 +5,7 @@
 
 namespace graphicInterface {
 
-    std::shared_ptr<View> View::get (const std::string type)
+    std::shared_ptr<View> View::get (const std::string &type)
     {
         if (!obj) {
             if (type == textView)

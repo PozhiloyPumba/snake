@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <functional>
 
 namespace graphicInterface {
     class View {
@@ -12,10 +13,18 @@ namespace graphicInterface {
 
     public:
         static inline std::shared_ptr<View> obj = nullptr;
-        static std::shared_ptr<View> get (const std::string type);
+        static std::shared_ptr<View> get (const std::string &type = textView);
 
         virtual ~View () = 0;
+
         virtual void run () = 0;
+        
+        using rabbit_t = std::pair<unsigned short, unsigned short>;
+
+        virtual rabbit_t getTermSize () const = 0;
+        virtual void paint (rabbit_t &rabbit) = 0;   // rabbit
+
+        std::function <void ()> drawing;
     };
 }  // namespace graphicInterface
 

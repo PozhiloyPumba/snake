@@ -15,7 +15,7 @@ namespace graphicInterface {
         if (sigN != SIGWINCH)
             throw std::invalid_argument ("strange signal " + sigN);
 
-        TView::changeTermSizeHandler();
+        TView::changeTermSizeHandler ();
     }
 
     TView::TView (int fps) : delay_ (1000000 / fps)
@@ -24,8 +24,11 @@ namespace graphicInterface {
         struct termios raw;
         cfmakeraw (&raw);
         raw.c_lflag |= ISIG;
-        raw.c_cc[VINTR] = 3;    // ctrl + C
+        raw.c_cc[VINTR] = 3;  // ctrl + C
         tcsetattr (0, TCSANOW, &raw);
+
+        ioctl (STDOUT_FILENO, TIOCGWINSZ, &termSize_);
+        virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
 
         interruptHandler = std::bind (&TView::endHandler, this);
         signal (SIGINT, &graphicInterface::sigintHandler);
@@ -36,7 +39,7 @@ namespace graphicInterface {
     TView::~TView ()
     {
     }
-    
+
     void TView::endHandler ()
     {
         tcsetattr (0, TCSANOW, &old_);
@@ -73,6 +76,7 @@ namespace graphicInterface {
         virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
 
         setColor (colorFrameBack_, colorFrameFore_);
+        sym_ = {' ', ' '};
         drawHLine (0, 0, virtSize_.first);
         drawHLine (0, virtSize_.second - 1, virtSize_.first);
         drawVLine (0, 0, virtSize_.second);
@@ -81,13 +85,22 @@ namespace graphicInterface {
         resetColor ();
     }
 
+    void TView::paint (std::pair<unsigned short, unsigned short> &rabbit)
+    {
+        setColor (47, 30);
+        sym_ = {' ', ' '};
+        drawVLine (rabbit.first, rabbit.second, 1);
+        resetColor ();
+        fflush(stdout);
+    }
+
     void TView::run ()
     {
         struct pollfd in = {0, POLL_IN, 0};
         drawFrame ();
 
         while (!end_) {
-
+            drawing();
             if (poll (&in, 1, delay_) == 1) {
                 char c;
                 read (0, &c, 1);

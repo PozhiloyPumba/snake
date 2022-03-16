@@ -4,8 +4,18 @@ namespace graphicInterface {
 
     void sigintHandler (int sigN)
     {
+        if (sigN != SIGINT)
+            throw std::invalid_argument ("strange signal " + sigN);
 
-        TView::funcHandler ();
+        TView::interruptHandler ();
+    }
+
+    void sigChangeTermSizeHandler (int sigN)
+    {
+        if (sigN != SIGWINCH)
+            throw std::invalid_argument ("strange signal " + sigN);
+
+        TView::changeTermSizeHandler();
     }
 
     TView::TView (int fps) : delay_ (1000000 / fps)
@@ -17,8 +27,10 @@ namespace graphicInterface {
         raw.c_cc[VINTR] = 3;    // ctrl + C
         tcsetattr (0, TCSANOW, &raw);
 
-        funcHandler = std::bind (&TView::endHandler, this);
+        interruptHandler = std::bind (&TView::endHandler, this);
         signal (SIGINT, &graphicInterface::sigintHandler);
+        changeTermSizeHandler = std::bind (&TView::drawFrame, this);
+        signal (SIGWINCH, &graphicInterface::sigChangeTermSizeHandler);
     }
 
     TView::~TView ()
@@ -54,17 +66,11 @@ namespace graphicInterface {
 
     void TView::drawFrame ()
     {
-        struct winsize w;
-
-        ioctl (STDOUT_FILENO, TIOCGWINSZ, &w);
-
-        if (w.ws_col == termSize_.ws_col && w.ws_row == termSize_.ws_row)
-            return;
-        termSize_ = w;
+        ioctl (STDOUT_FILENO, TIOCGWINSZ, &termSize_);
 
         printf ("\e[1;1H\e[J");
 
-        virtSize_ = {w.ws_col / 2, w.ws_row - w.ws_row % 2};
+        virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
 
         setColor (colorFrameBack_, colorFrameFore_);
         drawHLine (0, 0, virtSize_.first);
@@ -78,9 +84,9 @@ namespace graphicInterface {
     void TView::run ()
     {
         struct pollfd in = {0, POLL_IN, 0};
+        drawFrame ();
 
         while (!end_) {
-            drawFrame ();
 
             if (poll (&in, 1, delay_) == 1) {
                 char c;

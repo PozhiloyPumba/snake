@@ -34,9 +34,11 @@ namespace graphicInterface {
     public:
         TView (int fps = 120);
 
-        static inline std::function<void ()> funcHandler;
+        static inline std::function<void ()> interruptHandler;
+        static inline std::function<void ()> changeTermSizeHandler;
 
         void endHandler ();
+
         ~TView () override;
 
         void drawFrame ();

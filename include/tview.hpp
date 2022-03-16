@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
+#include <poll.h>
 
 #include <functional>
 #include <utility>
@@ -33,9 +34,9 @@ namespace graphicInterface {
     public:
         TView (int fps = 120);
 
-        static inline std::function<void (int)> funcHandler;
+        static inline std::function<void ()> funcHandler;
 
-        void handler (int sigN);
+        void endHandler ();
         ~TView () override;
 
         void drawFrame ();

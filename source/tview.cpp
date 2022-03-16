@@ -4,7 +4,8 @@ namespace graphicInterface {
 
     void sigintHandler (int sigN)
     {
-        TView::funcHandler (sigN);
+
+        TView::funcHandler ();
     }
 
     TView::TView (int fps) : delay_ (1000000 / fps)
@@ -13,10 +14,10 @@ namespace graphicInterface {
         struct termios raw;
         cfmakeraw (&raw);
         raw.c_lflag |= ISIG;
-        raw.c_cc[VINTR] = 'q';
+        raw.c_cc[VINTR] = 3;    // ctrl + C
         tcsetattr (0, TCSANOW, &raw);
 
-        funcHandler = std::bind (&TView::handler, this, std::placeholders::_1);
+        funcHandler = std::bind (&TView::endHandler, this);
         signal (SIGINT, &graphicInterface::sigintHandler);
     }
 
@@ -24,7 +25,7 @@ namespace graphicInterface {
     {
     }
     
-    void TView::handler (int sigN)
+    void TView::endHandler ()
     {
         tcsetattr (0, TCSANOW, &old_);
         end_ = true;
@@ -76,11 +77,18 @@ namespace graphicInterface {
 
     void TView::run ()
     {
-        printf ("\e[1;1H\e[J");
-        fflush (stdout);
+        struct pollfd in = {0, POLL_IN, 0};
+
         while (!end_) {
             drawFrame ();
-            usleep (delay_);
+
+            if (poll (&in, 1, delay_) == 1) {
+                char c;
+                read (0, &c, 1);
+
+                if (c == 'q')
+                    endHandler ();
+            }
         }
     }
 }  // namespace graphicInterface

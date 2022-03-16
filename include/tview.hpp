@@ -1,10 +1,12 @@
 #ifndef TVIEW_HPP
 #define TVIEW_HPP
 
-#include <sys/ioctl.h>
-#include <unistd.h>
 #include <signal.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
 
+#include <functional>
 #include <utility>
 
 #include "view.hpp"
@@ -13,6 +15,9 @@ namespace graphicInterface {
     class TView final : public View {
     private:
         int delay_;
+        bool end_ = false;
+
+        struct termios old_;
         const short colorFrameBack_ = 41;
         const short colorFrameFore_ = 34;
         std::pair<char, char> sym_{' ', ' '};
@@ -26,8 +31,11 @@ namespace graphicInterface {
         void drawVLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
 
     public:
-        TView (int fps = 120) : delay_ (1000000 / fps) {}
+        TView (int fps = 120);
 
+        static inline std::function<void (int)> funcHandler;
+
+        void handler (int sigN);
         ~TView () override;
 
         void drawFrame ();

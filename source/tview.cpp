@@ -1,9 +1,33 @@
 #include "tview.hpp"
 
 namespace graphicInterface {
+
+    void sigintHandler (int sigN)
+    {
+        TView::funcHandler (sigN);
+    }
+
+    TView::TView (int fps) : delay_ (1000000 / fps)
+    {
+        tcgetattr (0, &old_);
+        struct termios raw;
+        cfmakeraw (&raw);
+        raw.c_lflag |= ISIG;
+        raw.c_cc[VINTR] = 'q';
+        tcsetattr (0, TCSANOW, &raw);
+
+        funcHandler = std::bind (&TView::handler, this, std::placeholders::_1);
+        signal (SIGINT, &graphicInterface::sigintHandler);
+    }
+
     TView::~TView ()
     {
-        // std::cout << "text destroy" << std::endl;
+    }
+    
+    void TView::handler (int sigN)
+    {
+        tcsetattr (0, TCSANOW, &old_);
+        end_ = true;
     }
 
     void TView::drawHLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const
@@ -54,8 +78,7 @@ namespace graphicInterface {
     {
         printf ("\e[1;1H\e[J");
         fflush (stdout);
-        bool end = false;
-        while (!end) {
+        while (!end_) {
             drawFrame ();
             usleep (delay_);
         }

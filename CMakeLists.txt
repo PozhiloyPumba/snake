@@ -33,7 +33,6 @@ set (COMPILER_SETTINGS
     -Wdouble-promotion
 
     -Wfloat-equal
-    -Wbool-compare
 
     -Wdiv-by-zero
 

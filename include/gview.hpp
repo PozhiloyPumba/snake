@@ -9,7 +9,7 @@ namespace graphicInterface {
         int delay_;
 
     public:
-        GView (int fps = 24) : delay_ (1000000 / fps) {}
+        GView (int fps = 120) : delay_ (1000000 / fps) {}
 
         ~GView () override;
 

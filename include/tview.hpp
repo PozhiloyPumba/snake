@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include <functional>
+#include <iterator>
 #include <utility>
 
 #include "view.hpp"
@@ -42,6 +43,7 @@ namespace graphicInterface {
 
         std::pair<unsigned short, unsigned short> getTermSize () const override {   return virtSize_;   }
         void paint (std::pair<unsigned short, unsigned short> &rabbit) override;
+        void paint (gameModel::Snake &snake) override;
 
         void run () override;
     };

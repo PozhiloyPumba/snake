@@ -4,6 +4,9 @@
 #include <iostream>
 #include <memory>
 #include <functional>
+#include <list>
+#include "model.hpp"
+
 
 namespace graphicInterface {
     class View {
@@ -23,6 +26,7 @@ namespace graphicInterface {
 
         virtual rabbit_t getTermSize () const = 0;
         virtual void paint (rabbit_t &rabbit) = 0;   // rabbit
+        virtual void paint (gameModel::Snake &snake) = 0;   // rabbit
 
         std::function <void ()> drawing;
     };

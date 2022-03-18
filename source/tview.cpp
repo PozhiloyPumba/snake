@@ -94,6 +94,40 @@ namespace graphicInterface {
         fflush(stdout);
     }
 
+    void TView::paint (gameModel::Snake &snake)
+    {
+        setColor (45, 30);
+        switch (snake.direction_) {
+            case gameModel::Snake::dir::UP: sym_ = {'/', '\\'}; break;
+            case gameModel::Snake::dir::DOWN: sym_ = {'\\', '/'}; break;
+            case gameModel::Snake::dir::LEFT: sym_ = {'<', ' '}; break;
+            case gameModel::Snake::dir::RIGHT: sym_ = {' ', '>'}; break;
+        }
+        
+        drawVLine (snake.body_.front ().first, snake.body_.front ().second, 1);
+
+        setColor (44, 37);
+
+        for (auto curIt = ++snake.body_.begin (), endIt = snake.body_.end (); curIt != endIt; ++curIt) {
+            auto prev = std::prev(curIt);
+
+            if (prev->second != curIt->second) {
+                if (prev->second < curIt->second)   sym_ = {'^', '^'};
+                else sym_ = {'v', 'v'};
+            }
+            else if (prev->first != curIt->first) {
+                if (prev->first < curIt->first)     sym_ = {'<', '<'};
+                else sym_ = {'>', '>'};
+            }
+            else throw std::invalid_argument ("wrong snake");
+
+            drawVLine (curIt->first, curIt->second, 1);
+        }
+
+        resetColor ();
+        fflush(stdout);
+    }
+
     void TView::run ()
     {
         struct pollfd in = {0, POLL_IN, 0};
@@ -105,8 +139,10 @@ namespace graphicInterface {
                 char c;
                 read (0, &c, 1);
 
-                if (c == 'q')
-                    endHandler ();
+                switch (c) {
+                    case 'q': endHandler (); break;
+
+                }
             }
         }
     }

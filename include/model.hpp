@@ -7,25 +7,33 @@
 #include <random>
 #include <chrono>
 
-#include "view.hpp"
 
 namespace gameModel {
+    using coord_t = std::pair<unsigned short, unsigned short>;
     
-    class game final {
+    struct Snake {
+        enum class dir {
+            UP,
+            DOWN,
+            RIGHT,
+            LEFT
+        };
+
+        std::list<coord_t> body_;
+        dir direction_ = dir::RIGHT;
+    };
+
+    class Game final {
     private:
-        const int nRabbits_ = 2000;
+        const int nRabbits_ = 10;
         std::mt19937 generator {static_cast<long unsigned int>(std::chrono::system_clock::now ().time_since_epoch ().count ())};
-        std::list<std::pair<unsigned short, unsigned short>> rabbits_;
+        std::list<coord_t> rabbits_;
+        Snake snake_;
 
     public:
-        game ()
-        {
-            graphicInterface::View::get()->drawing = std::bind (&game::drawAll, this);
-            for (int i = 0; i < nRabbits_; ++i)
-                addNewRabbit();
-        }
+        Game ();
 
-        void addNewRabbit ();
+        coord_t getNewRandomPair ();
 
         void drawAll ();
     };

@@ -24,7 +24,7 @@ namespace graphicInterface {
         struct termios raw;
         cfmakeraw (&raw);
         raw.c_lflag |= ISIG;
-        raw.c_cc[VINTR] = 'q';  // ctrl + C
+        raw.c_cc[VINTR] = 3;  // ctrl + C
         tcsetattr (0, TCSANOW, &raw);
 
         ioctl (STDOUT_FILENO, TIOCGWINSZ, &termSize_);
@@ -42,6 +42,7 @@ namespace graphicInterface {
 
     void TView::endHandler ()
     {
+        printf ("\e[1;1H\e[J");
         tcsetattr (0, TCSANOW, &old_);
         end_ = true;
     }
@@ -75,7 +76,7 @@ namespace graphicInterface {
 
         virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
 
-        setColor (0, 62);
+        setColor (62, 62);
         sym_ = {' ', ' '};
         drawHLine (0, 0, virtSize_.first);
         drawHLine (0, virtSize_.second - 1, virtSize_.first);

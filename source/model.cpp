@@ -24,7 +24,7 @@ namespace gameModel {
         for (int i = 0; i < nRabbits_; ++i)
             rabbits_.push_back (getNewRandomPair ());
 
-        for (int i = 0; i < beginSnakeLen_; ++i)
+        for (int i = 0; i < beginSnakeLen_ && v->getTermSize ().first / 5 - i > 0; ++i)
             snake_.body_.push_back ({v->getTermSize ().first / 5 - i, v->getTermSize ().second / 2});
     }
 
@@ -101,6 +101,9 @@ namespace gameModel {
 
     bool Game::controller ()  // TODO: refactor this function
     {
+        if (checkSnakeCrash ())
+            return true;
+        
         buttonHandler ();
 
         auto head = snake_.body_.front ();
@@ -128,9 +131,6 @@ namespace gameModel {
         }
 
         snake_.body_.push_front (newHead);
-
-        if (checkSnakeCrash ())
-            return true;
 
         return false;
     }

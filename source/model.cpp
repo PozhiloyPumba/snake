@@ -59,8 +59,11 @@ namespace gameModel {
 
             if (c == '\033') {
                 read (0, &c, 1);
+                if (c == 'q')
+                    graphicInterface::View::get ()->endHandler();
+                
                 read (0, &c, 1);
-
+                
                 switch (c) {
                     case 'A':
                         if (snake_.direction_ != Snake::dir::DOWN)
@@ -78,8 +81,13 @@ namespace gameModel {
                         if (snake_.direction_ != Snake::dir::RIGHT)
                             snake_.direction_ = Snake::dir::LEFT;
                         break;
+                    case 'q':
+                        graphicInterface::View::get ()->endHandler();
+                        break;
                 }
             }
+            if (c == 'q')
+                graphicInterface::View::get ()->endHandler();
         }
     }
 

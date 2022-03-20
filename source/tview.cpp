@@ -42,9 +42,8 @@ namespace graphicInterface {
 
     void TView::endHandler ()
     {
-        printf ("\e[1;1H\e[J");
-        tcsetattr (0, TCSANOW, &old_);
         end_ = true;
+        tcsetattr (0, TCSANOW, &old_);
     }
 
     void TView::drawHLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const
@@ -76,7 +75,7 @@ namespace graphicInterface {
 
         virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
 
-        setColor (62, 62);
+        setColor (purple_, purple_);
         sym_ = {' ', ' '};
         drawHLine (0, 0, virtSize_.first);
         drawHLine (0, virtSize_.second - 1, virtSize_.first);
@@ -88,7 +87,7 @@ namespace graphicInterface {
 
     void TView::paint (std::pair<unsigned short, unsigned short> &rabbit)
     {
-        setColor (0, 249);
+        setColor (black_, lightGrey_);
         sym_ = {' ', ' '};
         drawVLine (rabbit.first, rabbit.second, 1);
         resetColor ();
@@ -97,7 +96,7 @@ namespace graphicInterface {
 
     void TView::paint (gameModel::Snake &snake)
     {
-        setColor (0, 196);
+        setColor (black_, red_);
         switch (snake.direction_) {
             case gameModel::Snake::dir::UP: sym_ = {'/', '\\'}; break;
             case gameModel::Snake::dir::DOWN: sym_ = {'\\', '/'}; break;
@@ -107,7 +106,7 @@ namespace graphicInterface {
 
         drawVLine (snake.body_.front ().first, snake.body_.front ().second, 1);
 
-        setColor (0, 46);
+        setColor (black_, green_);
 
         for (auto curIt = ++snake.body_.begin (), endIt = snake.body_.end (); curIt != endIt; ++curIt) {
             auto prev = std::prev (curIt);
@@ -146,5 +145,8 @@ namespace graphicInterface {
 
             drawing ();
         }
+
+        printf ("\e[1;1H\e[J"); // clearing window
+        printf ("Game Over\n");
     }
 }  // namespace graphicInterface

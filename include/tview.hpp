@@ -16,6 +16,12 @@
 namespace graphicInterface {
     class TView final : public View {
     private:
+        const int lightGrey_ = 249;
+        const int black_ = 0;
+        const int purple_ = 62;
+        const int red_ = 196;
+        const int green_ = 46;
+        
         int delay_;
         bool end_ = false;
 
@@ -37,7 +43,7 @@ namespace graphicInterface {
         static inline std::function<void ()> interruptHandler;
         static inline std::function<void ()> changeTermSizeHandler;
 
-        void endHandler ();
+        void endHandler () override;
 
         std::pair<unsigned short, unsigned short> getTermSize () const override { return virtSize_; }
         void paint (std::pair<unsigned short, unsigned short> &rabbit) override;

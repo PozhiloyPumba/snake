@@ -24,7 +24,7 @@ namespace graphicInterface {
         struct termios raw;
         cfmakeraw (&raw);
         raw.c_lflag |= ISIG;
-        raw.c_cc[VINTR] = 3;  // ctrl + C
+        raw.c_cc[VINTR] = 'q';  // ctrl + C
         tcsetattr (0, TCSANOW, &raw);
 
         ioctl (STDOUT_FILENO, TIOCGWINSZ, &termSize_);
@@ -75,75 +75,75 @@ namespace graphicInterface {
 
         virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
 
-        setColor (colorFrameBack_, colorFrameFore_);
+        setColor (0, 62);
         sym_ = {' ', ' '};
         drawHLine (0, 0, virtSize_.first);
         drawHLine (0, virtSize_.second - 1, virtSize_.first);
         drawVLine (0, 0, virtSize_.second);
         drawVLine (virtSize_.first - 1, 0, virtSize_.second);
-        fflush (stdout);
         resetColor ();
+        fflush (stdout);
     }
 
     void TView::paint (std::pair<unsigned short, unsigned short> &rabbit)
     {
-        setColor (47, 30);
+        setColor (0, 249);
         sym_ = {' ', ' '};
         drawVLine (rabbit.first, rabbit.second, 1);
         resetColor ();
-        fflush(stdout);
+        fflush (stdout);
     }
 
     void TView::paint (gameModel::Snake &snake)
     {
-        setColor (45, 30);
+        setColor (0, 196);
         switch (snake.direction_) {
             case gameModel::Snake::dir::UP: sym_ = {'/', '\\'}; break;
             case gameModel::Snake::dir::DOWN: sym_ = {'\\', '/'}; break;
             case gameModel::Snake::dir::LEFT: sym_ = {'<', ' '}; break;
             case gameModel::Snake::dir::RIGHT: sym_ = {' ', '>'}; break;
         }
-        
+
         drawVLine (snake.body_.front ().first, snake.body_.front ().second, 1);
 
-        setColor (44, 37);
+        setColor (0, 46);
 
         for (auto curIt = ++snake.body_.begin (), endIt = snake.body_.end (); curIt != endIt; ++curIt) {
-            auto prev = std::prev(curIt);
+            auto prev = std::prev (curIt);
 
             if (prev->second != curIt->second) {
-                if (prev->second < curIt->second)   sym_ = {'^', '^'};
-                else sym_ = {'v', 'v'};
+                if (prev->second < curIt->second)
+                    sym_ = {'^', '^'};
+                else
+                    sym_ = {'v', 'v'};
             }
             else if (prev->first != curIt->first) {
-                if (prev->first < curIt->first)     sym_ = {'<', '<'};
-                else sym_ = {'>', '>'};
+                if (prev->first < curIt->first)
+                    sym_ = {'<', '<'};
+                else
+                    sym_ = {'>', '>'};
             }
-            else throw std::invalid_argument ("wrong snake");
+            else
+                throw std::invalid_argument ("wrong snake");
 
             drawVLine (curIt->first, curIt->second, 1);
         }
 
         resetColor ();
-        fflush(stdout);
+        fflush (stdout);
     }
 
     void TView::run ()
     {
-        struct pollfd in = {0, POLL_IN, 0};
         drawFrame ();
 
         while (!end_) {
-            drawing();
-            if (poll (&in, 1, delay_) == 1) {
-                char c;
-                read (0, &c, 1);
-
-                switch (c) {
-                    case 'q': endHandler (); break;
-
-                }
+            if (setCoordObjs ()) {
+                endHandler ();
+                break;
             }
+
+            drawing ();
         }
     }
 }  // namespace graphicInterface

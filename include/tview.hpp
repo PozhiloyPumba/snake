@@ -20,18 +20,15 @@ namespace graphicInterface {
         bool end_ = false;
 
         struct termios old_;
-        const short colorFrameBack_ = 41;
-        const short colorFrameFore_ = 34;
         std::pair<char, char> sym_{' ', ' '};
 
         struct winsize termSize_ = {0, 0, 0, 0};
         std::pair<unsigned short, unsigned short> virtSize_ = {0, 0};
 
-        inline void setColor (char colorBack, char colorFront) const { printf ("\e[%dm\e[%dm", colorFront, colorBack); }
-        inline void resetColor () const { printf ("\e[m"); }
+        inline void setColor (unsigned char colorFront, unsigned char colorBack) const { printf ("\e[48;5;%dm\e[38;5;%dm", colorBack, colorFront); }
+        inline void resetColor () const { printf ("\e[m\e[1;1H"); }
         void drawHLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
         void drawVLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
-        void drawFrame ();
 
     public:
         TView (int fps = 120);
@@ -39,11 +36,13 @@ namespace graphicInterface {
 
         static inline std::function<void ()> interruptHandler;
         static inline std::function<void ()> changeTermSizeHandler;
+
         void endHandler ();
 
-        std::pair<unsigned short, unsigned short> getTermSize () const override {   return virtSize_;   }
+        std::pair<unsigned short, unsigned short> getTermSize () const override { return virtSize_; }
         void paint (std::pair<unsigned short, unsigned short> &rabbit) override;
         void paint (gameModel::Snake &snake) override;
+        void drawFrame () override;
 
         void run () override;
     };

@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include "model.hpp"
 
 #include "view.hpp"
@@ -106,12 +108,26 @@ namespace gameModel {
 
         return false;
     }
-
-    bool Game::controller ()  // TODO: refactor this function
+    
+    bool Game::checkWin ()
     {
-        if (checkSnakeCrash ())
+        auto termSize = graphicInterface::View::get ()->getTermSize ();
+
+        if (snake_.body_.size () == (termSize.first - 2) * (termSize.second - 2))
             return true;
+
+        return false;
+    }
+
+
+    int Game::controller ()  // TODO: refactor this function
+    {
+        if (checkWin ())
+            return 2;
         
+        if (checkSnakeCrash ())
+            return 1;
+
         buttonHandler ();
 
         auto head = snake_.body_.front ();
@@ -140,6 +156,6 @@ namespace gameModel {
 
         snake_.body_.push_front (newHead);
 
-        return false;
+        return 0;
     }
 }  // namespace gameModel

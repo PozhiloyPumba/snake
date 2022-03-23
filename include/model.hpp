@@ -35,9 +35,10 @@ namespace gameModel {
         Snake snake_;
         coord_t getNewRandomPair ();
         void drawAll ();
-        bool controller ();
+        int controller ();
         void buttonHandler ();
         bool checkSnakeCrash ();
+        bool checkWin ();
 
     public:
         Game ();

@@ -136,9 +136,9 @@ namespace graphicInterface {
     void TView::run ()
     {
         drawFrame ();
-
+        int result;
         while (!end_) {
-            if (setCoordObjs ()) {
+            if (result = setCoordObjs ()) {
                 endHandler ();
                 break;
             }
@@ -147,6 +147,8 @@ namespace graphicInterface {
         }
 
         printf ("\e[1;1H\e[J"); // clearing window
-        printf ("Game Over\n");
+        if (result == 1)
+            printf ("Game Over\n");
+        else printf ("Winner\n");
     }
 }  // namespace graphicInterface

@@ -31,7 +31,7 @@ namespace graphicInterface {
         virtual void endHandler () = 0;
 
         std::function<void ()> drawing;
-        std::function<bool ()> setCoordObjs;
+        std::function<int ()> setCoordObjs;
     };
 }  // namespace graphicInterface
 

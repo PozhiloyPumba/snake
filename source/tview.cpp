@@ -138,7 +138,8 @@ namespace graphicInterface {
         drawFrame ();
         int result;
         while (!end_) {
-            if (result = setCoordObjs ()) {
+            result = setCoordObjs ();
+            if (result) {
                 endHandler ();
                 break;
             }
@@ -146,9 +147,10 @@ namespace graphicInterface {
             drawing ();
         }
 
-        printf ("\e[1;1H\e[J"); // clearing window
+        printf ("\e[1;1H\e[J");  // clearing window
         if (result == 1)
             printf ("Game Over\n");
-        else printf ("Winner\n");
+        else if (result == 2)
+            printf ("Winner\n");
     }
 }  // namespace graphicInterface

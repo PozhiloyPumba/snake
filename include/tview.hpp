@@ -21,7 +21,7 @@ namespace graphicInterface {
         const int purple_ = 62;
         const int red_ = 196;
         const int green_ = 46;
-        
+
         int delay_;
         bool end_ = false;
 

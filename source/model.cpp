@@ -1,6 +1,6 @@
-#include <unistd.h>
-
 #include "model.hpp"
+
+#include <unistd.h>
 
 #include "view.hpp"
 
@@ -30,7 +30,7 @@ namespace gameModel {
             snake_.body_.push_back ({v->getTermSize ().first / 5 - i, v->getTermSize ().second / 2});
     }
 
-    coord_t Game::getNewRandomPair ()   //TODO: fix spawn in snake
+    coord_t Game::getNewRandomPair ()  // TODO: fix spawn in snake
     {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
 
@@ -62,10 +62,10 @@ namespace gameModel {
             if (c == '\033') {
                 read (0, &c, 1);
                 if (c == 'q')
-                    graphicInterface::View::get ()->endHandler();
-                
+                    graphicInterface::View::get ()->endHandler ();
+
                 read (0, &c, 1);
-                
+
                 switch (c) {
                     case 'A':
                         if (snake_.direction_ != Snake::dir::DOWN)
@@ -84,12 +84,12 @@ namespace gameModel {
                             snake_.direction_ = Snake::dir::LEFT;
                         break;
                     case 'q':
-                        graphicInterface::View::get ()->endHandler();
+                        graphicInterface::View::get ()->endHandler ();
                         break;
                 }
             }
             if (c == 'q')
-                graphicInterface::View::get ()->endHandler();
+                graphicInterface::View::get ()->endHandler ();
         }
     }
 
@@ -108,23 +108,22 @@ namespace gameModel {
 
         return false;
     }
-    
+
     bool Game::checkWin ()
     {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
 
-        if (snake_.body_.size () == (termSize.first - 2) * (termSize.second - 2))
+        if (static_cast<int> (snake_.body_.size ()) == (termSize.first - 2) * (termSize.second - 2))
             return true;
 
         return false;
     }
 
-
     int Game::controller ()  // TODO: refactor this function
     {
         if (checkWin ())
             return 2;
-        
+
         if (checkSnakeCrash ())
             return 1;
 

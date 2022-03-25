@@ -5,8 +5,14 @@
 
 int main (int argc, char *argv[])
 {
-    std::shared_ptr<graphicInterface::View> screen = graphicInterface::View::get ((argc == 2) ? argv[1] : "text");
+    auto screen = graphicInterface::View::get ((argc == 2) ? argv[1] : "text");
     gameModel::Game model;
+
+    Control::Human h1 ("w", "a", "s", "d");
+    Control::Human h2 ("i", "j", "k", "l");
+
+    model.addGamer (h1);
+    model.addGamer (h2);
 
     screen->run ();
 

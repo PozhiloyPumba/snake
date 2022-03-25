@@ -5,6 +5,7 @@
 #include <iostream>
 #include <list>
 #include <memory>
+#include <unordered_map>
 
 #include "model.hpp"
 
@@ -22,16 +23,18 @@ namespace graphicInterface {
 
         virtual void run () = 0;
 
-        using rabbit_t = std::pair<unsigned short, unsigned short>;
+        using coord_t = std::pair<unsigned short, unsigned short>;
 
-        virtual rabbit_t getTermSize () const = 0;
-        virtual void paint (rabbit_t &rabbit) = 0;         // rabbit
-        virtual void paint (gameModel::Snake &snake) = 0;  // snake
-        virtual void drawFrame () = 0;                     // frame
+        virtual coord_t getTermSize () const = 0;
+        virtual void paint (coord_t &rabbit) = 0;        // rabbit
+        virtual void paint (Control::Snake &snake) = 0;  // snake
+        virtual void drawFrame () = 0;                   // frame
         virtual void endHandler () = 0;
 
         std::function<void ()> drawing;
         std::function<int ()> setCoordObjs;
+
+        std::unordered_map<std::string, std::function<void ()>> buttonHandler_;
     };
 }  // namespace graphicInterface
 

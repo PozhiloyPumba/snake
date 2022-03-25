@@ -6,16 +6,16 @@
 
 namespace gameModel {
 
-    bool Snake::checkSelfDestruction ()
-    {
-        auto head = body_.front ();
+    // bool Snake::checkSelfDestruction ()
+    // {
+    //     auto head = body_.front ();
 
-        for (auto curIt = ++body_.begin (), endIt = body_.end (); curIt != endIt; ++curIt)
-            if (head == (*curIt))
-                return true;
+    //     for (auto curIt = ++body_.begin (), endIt = body_.end (); curIt != endIt; ++curIt)
+    //         if (head == (*curIt))
+    //             return true;
 
-        return false;
-    }
+    //     return false;
+    // }
 
     Game::Game ()
     {
@@ -25,9 +25,6 @@ namespace gameModel {
 
         for (int i = 0; i < nRabbits_; ++i)
             rabbits_.push_back (getNewRandomPair ());
-
-        for (int i = 0; i < beginSnakeLen_ && v->getTermSize ().first / 5 - i > 0; ++i)
-            snake_.body_.push_back ({v->getTermSize ().first / 5 - i, v->getTermSize ().second / 2});
     }
 
     coord_t Game::getNewRandomPair ()  // TODO: fix spawn in snake
@@ -48,88 +45,64 @@ namespace gameModel {
         for (auto r : rabbits_)
             v->paint (r);
 
-        v->paint (snake_);
+        for (auto s : snakes_)
+            v->paint (s);
     }
 
-    void Game::buttonHandler ()
+    bool Game::checkSnakeCrash ()   //TODO: fix stop program if one of snakes crash
     {
-        struct pollfd in = {0, POLL_IN, 0};
+        auto termSize = graphicInterface::View::get ()->getTermSize ();
 
-        if (poll (&in, 1, 500) == 1) {
-            unsigned char c;
-            read (0, &c, 1);
+        for (auto curIt = snakes_.begin (), endIt = snakes_.end (); curIt != endIt; ++curIt) {
+    
+            auto head = (*curIt).body_.front ();
 
-            if (c == '\033') {
-                read (0, &c, 1);
-                if (c == 'q')
-                    graphicInterface::View::get ()->endHandler ();
+            if (head.first <= 0 || head.first >= termSize.first - 1)
+                return true;
+            if (head.second <= 0 || head.second >= termSize.second - 1)
+                return true;
 
-                read (0, &c, 1);
-
-                switch (c) {
-                    case 'A':
-                        if (snake_.direction_ != Snake::dir::DOWN)
-                            snake_.direction_ = Snake::dir::UP;
-                        break;
-                    case 'B':
-                        if (snake_.direction_ != Snake::dir::UP)
-                            snake_.direction_ = Snake::dir::DOWN;
-                        break;
-                    case 'C':
-                        if (snake_.direction_ != Snake::dir::LEFT)
-                            snake_.direction_ = Snake::dir::RIGHT;
-                        break;
-                    case 'D':
-                        if (snake_.direction_ != Snake::dir::RIGHT)
-                            snake_.direction_ = Snake::dir::LEFT;
-                        break;
-                    case 'q':
-                        graphicInterface::View::get ()->endHandler ();
-                        break;
+            for (auto nextIt = snakes_.begin (); nextIt != endIt; ++nextIt) {
+                if (nextIt == curIt) {
+                    for (auto snakeCurIt = std::next ((*curIt).body_.begin ()), snakeEndIt = (*curIt).body_.end (); snakeCurIt != snakeEndIt; ++snakeCurIt)
+                        if (head == (*snakeCurIt))
+                            return true;
+                }
+                else {
+                    for (auto segment: nextIt->body_)
+                        if (head == segment)
+                            return true;
                 }
             }
-            if (c == 'q')
-                graphicInterface::View::get ()->endHandler ();
         }
-    }
-
-    bool Game::checkSnakeCrash ()
-    {
-        auto termSize = graphicInterface::View::get ()->getTermSize ();
-
-        auto head = snake_.body_.front ();
-
-        if (head.first <= 0 || head.first >= termSize.first - 1)
-            return true;
-        if (head.second <= 0 || head.second >= termSize.second - 1)
-            return true;
-        if (snake_.checkSelfDestruction ())
-            return true;
 
         return false;
     }
 
-    bool Game::checkWin ()
+    // TODO:
+    // bool Game::checkWin ()
+    // {
+    //     auto termSize = graphicInterface::View::get ()->getTermSize ();
+
+    //     if (static_cast<int> (snake_.body_.size ()) == (termSize.first - 2) * (termSize.second - 2))
+    //         return true;
+
+    //     return false;
+    // }
+
+    void Game::addGamer (Control::Human &ctrl)
     {
-        auto termSize = graphicInterface::View::get ()->getTermSize ();
+        auto v = graphicInterface::View::get ();
+        Control::Snake s ({v->getTermSize ().first / 5, v->getTermSize ().second / 2 + snakes_.size ()});
+        
+        snakes_.push_back (s);
 
-        if (static_cast<int> (snake_.body_.size ()) == (termSize.first - 2) * (termSize.second - 2))
-            return true;
-
-        return false;
+        ctrl.setSnake (snakes_.back ());
     }
 
-    int Game::controller ()  // TODO: refactor this function
+    void Game::snakeStep (Control::Snake &s)
     {
-        if (checkWin ())
-            return 2;
-
-        if (checkSnakeCrash ())
-            return 1;
-
-        buttonHandler ();
-
-        auto head = snake_.body_.front ();
+        auto head = s.body_.front ();
         bool neSiel = true;
 
         for (auto curIt = rabbits_.begin (), endIt = rabbits_.end (); curIt != endIt; ++curIt) {
@@ -142,18 +115,32 @@ namespace gameModel {
         }
 
         if (neSiel)
-            snake_.body_.pop_back ();
+            s.body_.pop_back ();
 
         coord_t newHead;
 
-        switch (snake_.direction_) {
-            case Snake::dir::UP: newHead = {head.first, head.second - 1}; break;
-            case Snake::dir::DOWN: newHead = {head.first, head.second + 1}; break;
-            case Snake::dir::LEFT: newHead = {head.first - 1, head.second}; break;
-            case Snake::dir::RIGHT: newHead = {head.first + 1, head.second}; break;
+        switch (s.direction_) {
+            case Control::Snake::dir::UP: newHead = {head.first, head.second - 1}; break;
+            case Control::Snake::dir::DOWN: newHead = {head.first, head.second + 1}; break;
+            case Control::Snake::dir::LEFT: newHead = {head.first - 1, head.second}; break;
+            case Control::Snake::dir::RIGHT: newHead = {head.first + 1, head.second}; break;
         }
 
-        snake_.body_.push_front (newHead);
+        s.body_.push_front (newHead);
+    }
+
+    int Game::controller ()
+    {
+        // if (checkWin ())
+        //     return 2;
+        if (snakes_.empty ())
+            return 0;
+        
+        for (auto &s : snakes_)
+            snakeStep (s);
+
+        if (checkSnakeCrash ())
+            return 1;
 
         return 0;
     }

@@ -35,6 +35,7 @@ namespace graphicInterface {
         inline void resetColor () const { printf ("\e[m\e[1;1H"); }
         void drawHLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
         void drawVLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
+        void buttonHandler ();
 
     public:
         TView (int fps = 120);
@@ -47,7 +48,7 @@ namespace graphicInterface {
 
         std::pair<unsigned short, unsigned short> getTermSize () const override { return virtSize_; }
         void paint (std::pair<unsigned short, unsigned short> &rabbit) override;
-        void paint (gameModel::Snake &snake) override;
+        void paint (Control::Snake &snake) override;
         void drawFrame () override;
 
         void run () override;

@@ -94,14 +94,14 @@ namespace graphicInterface {
         fflush (stdout);
     }
 
-    void TView::paint (gameModel::Snake &snake)
+    void TView::paint (Control::Snake &snake)
     {
         setColor (black_, red_);
         switch (snake.direction_) {
-            case gameModel::Snake::dir::UP: sym_ = {'/', '\\'}; break;
-            case gameModel::Snake::dir::DOWN: sym_ = {'\\', '/'}; break;
-            case gameModel::Snake::dir::LEFT: sym_ = {'<', ' '}; break;
-            case gameModel::Snake::dir::RIGHT: sym_ = {' ', '>'}; break;
+            case Control::Snake::dir::UP: sym_ = {'/', '\\'}; break;
+            case Control::Snake::dir::DOWN: sym_ = {'\\', '/'}; break;
+            case Control::Snake::dir::LEFT: sym_ = {'<', ' '}; break;
+            case Control::Snake::dir::RIGHT: sym_ = {' ', '>'}; break;
         }
 
         drawVLine (snake.body_.front ().first, snake.body_.front ().second, 1);
@@ -133,11 +133,48 @@ namespace graphicInterface {
         fflush (stdout);
     }
 
+    void TView::buttonHandler ()
+    {
+        struct pollfd in = {0, POLL_IN, 0};
+        std::string request = "";
+
+        if (poll (&in, 1, 500) == 1) {  //TODO: fix acceleration because of fake request
+            unsigned char c;
+            read (0, &c, 1);
+
+            request += c;
+
+            auto res = buttonHandler_.find (request);
+
+            if (res != buttonHandler_.end ())
+                res->second ();
+
+            // if (c == '\033') {
+            //     read (0, &c, 1);
+            //     if (c == 'q')   endHandler ();
+
+            //     read (0, &c, 1);
+
+            //     switch (c) {
+            //         case 'A':   upHandler (); break;
+            //         case 'B':   downHandler (); break;
+            //         case 'C':   rightHandler (); break;
+            //         case 'D':   leftHandler (); break;
+            //         case 'q':   endHandler ();  break;
+            //     }
+            // }
+
+            if (c == 'q')
+                endHandler ();
+        }
+    }
+
     void TView::run ()
     {
         drawFrame ();
         int result;
         while (!end_) {
+            buttonHandler ();
             result = setCoordObjs ();
             if (result) {
                 endHandler ();
@@ -148,6 +185,7 @@ namespace graphicInterface {
         }
 
         printf ("\e[1;1H\e[J");  // clearing window
+        //TODO: normal quit
         if (result == 1)
             printf ("Game Over\n");
         else if (result == 2)

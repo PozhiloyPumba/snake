@@ -9,22 +9,10 @@
 #include <random>
 #include <utility>
 
+#include "human.hpp"
+
 namespace gameModel {
     using coord_t = std::pair<unsigned short, unsigned short>;
-
-    struct Snake {
-        enum class dir {
-            UP,
-            DOWN,
-            RIGHT,
-            LEFT
-        };
-
-        std::list<coord_t> body_;
-        dir direction_ = dir::RIGHT;
-
-        bool checkSelfDestruction ();
-    };
 
     class Game final {
     private:
@@ -32,16 +20,17 @@ namespace gameModel {
         const int beginSnakeLen_ = 5;
         std::mt19937 generator_{static_cast<long unsigned int> (std::chrono::system_clock::now ().time_since_epoch ().count ())};
         std::list<coord_t> rabbits_;
-        Snake snake_;
+        std::list<Control::Snake> snakes_;
         coord_t getNewRandomPair ();
         void drawAll ();
         int controller ();
-        void buttonHandler ();
         bool checkSnakeCrash ();
         bool checkWin ();
+        void snakeStep (Control::Snake &s);
 
     public:
         Game ();
+        void addGamer (Control::Human &ctrl);
     };
 }  // namespace gameModel
 

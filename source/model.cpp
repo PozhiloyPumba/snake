@@ -53,42 +53,47 @@ namespace gameModel {
     {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
 
-        for (auto curIt = snakes_.begin (), endIt = snakes_.end (); curIt != endIt; ++curIt) {
-    
-            auto head = (*curIt).body_.front ();
+        for (auto curIt = snakes_.begin (), endIt = snakes_.end (); curIt != snakes_.end (); ) {
+            
+            auto prevIt = curIt;
+            ++curIt;
+            
+            auto head = (*prevIt).body_.front ();
 
-            if (head.first <= 0 || head.first >= termSize.first - 1)
-                return true;
-            if (head.second <= 0 || head.second >= termSize.second - 1)
-                return true;
+            if (head.first <= 0 || head.first >= termSize.first - 1) { // x-crash
+                snakes_.erase (prevIt);
+                continue;
+            }
+            if (head.second <= 0 || head.second >= termSize.second - 1) {// y-crash
+                snakes_.erase (prevIt);
+                continue;
+            }
 
+            bool crash = false;
             for (auto nextIt = snakes_.begin (); nextIt != endIt; ++nextIt) {
-                if (nextIt == curIt) {
-                    for (auto snakeCurIt = std::next ((*curIt).body_.begin ()), snakeEndIt = (*curIt).body_.end (); snakeCurIt != snakeEndIt; ++snakeCurIt)
-                        if (head == (*snakeCurIt))
-                            return true;
+                if (nextIt == prevIt) {  // self crash
+                    for (auto snakeCurIt = std::next ((*prevIt).body_.begin ()), snakeEndIt = (*prevIt).body_.end (); snakeCurIt != snakeEndIt; ++snakeCurIt)
+                        if (head == (*snakeCurIt)) {
+                            crash = true;
+                            break;
+                        }
                 }
-                else {
+                else {  // neighbour crash
                     for (auto segment: nextIt->body_)
-                        if (head == segment)
-                            return true;
+                        if (head == segment) {
+                            crash = true;
+                            break;
+                        }
+                }
+                if (crash) {
+                    snakes_.erase (prevIt);
+                    break;
                 }
             }
         }
 
         return false;
     }
-
-    // TODO:
-    // bool Game::checkWin ()
-    // {
-    //     auto termSize = graphicInterface::View::get ()->getTermSize ();
-
-    //     if (static_cast<int> (snake_.body_.size ()) == (termSize.first - 2) * (termSize.second - 2))
-    //         return true;
-
-    //     return false;
-    // }
 
     void Game::addGamer (Control::Human &ctrl)
     {
@@ -131,15 +136,12 @@ namespace gameModel {
 
     int Game::controller ()
     {
-        // if (checkWin ())
-        //     return 2;
-        if (snakes_.empty ())
-            return 0;
-        
         for (auto &s : snakes_)
             snakeStep (s);
 
-        if (checkSnakeCrash ())
+        checkSnakeCrash ();
+
+        if (snakes_.empty ())
             return 1;
 
         return 0;

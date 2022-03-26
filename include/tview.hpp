@@ -10,6 +10,7 @@
 #include <functional>
 #include <iterator>
 #include <utility>
+#include <chrono>
 
 #include "view.hpp"
 

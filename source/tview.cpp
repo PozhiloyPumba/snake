@@ -135,37 +135,30 @@ namespace graphicInterface {
 
     void TView::buttonHandler ()
     {
+        using namespace std::chrono_literals;
         struct pollfd in = {0, POLL_IN, 0};
         std::string request = "";
+        auto start = std::chrono::steady_clock::now ();
 
-        if (poll (&in, 1, 500) == 1) {  //TODO: fix acceleration because of fake request
-            unsigned char c;
-            read (0, &c, 1);
+        while (std::chrono::steady_clock::now () < start + 200ms) {
+            if (poll (&in, 1, 10) == 1) { //10 because I can do it)))
+                unsigned char c;
+                read (0, &c, 1);
 
-            request += c;
+                request += c;
 
-            auto res = buttonHandler_.find (request);
+                auto res = buttonHandler_.find (request);
 
-            if (res != buttonHandler_.end ())
-                res->second ();
+                if (res != buttonHandler_.end ()) {
+                    res->second ();
+                    request = "";
+                }
 
-            // if (c == '\033') {
-            //     read (0, &c, 1);
-            //     if (c == 'q')   endHandler ();
-
-            //     read (0, &c, 1);
-
-            //     switch (c) {
-            //         case 'A':   upHandler (); break;
-            //         case 'B':   downHandler (); break;
-            //         case 'C':   rightHandler (); break;
-            //         case 'D':   leftHandler (); break;
-            //         case 'q':   endHandler ();  break;
-            //     }
-            // }
-
-            if (c == 'q')
-                endHandler ();
+                if (c == 'q') {
+                    endHandler ();
+                    break;
+                }
+            }
         }
     }
 

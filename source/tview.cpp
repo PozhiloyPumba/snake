@@ -21,7 +21,7 @@ namespace graphicInterface {
     TView::TView (int fps) : delay_ (1000000 / fps)
     {
         tcgetattr (0, &old_);
-        struct termios raw;
+        struct termios raw = {};
         cfmakeraw (&raw);
         raw.c_lflag |= ISIG;
         raw.c_cc[VINTR] = 3;  // ctrl + C

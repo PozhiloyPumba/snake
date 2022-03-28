@@ -6,17 +6,6 @@
 
 namespace gameModel {
 
-    // bool Snake::checkSelfDestruction ()
-    // {
-    //     auto head = body_.front ();
-
-    //     for (auto curIt = ++body_.begin (), endIt = body_.end (); curIt != endIt; ++curIt)
-    //         if (head == (*curIt))
-    //             return true;
-
-    //     return false;
-    // }
-
     Game::Game ()
     {
         auto v = graphicInterface::View::get ();
@@ -46,10 +35,10 @@ namespace gameModel {
             v->paint (r);
 
         for (auto s : snakes_)
-            v->paint (s);
+            v->paint (*s);
     }
 
-    bool Game::checkSnakeCrash ()   //TODO: fix stop program if one of snakes crash
+    bool Game::checkSnakeCrash ()   //TODO: refactor code... 
     {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
 
@@ -58,13 +47,15 @@ namespace gameModel {
             auto prevIt = curIt;
             ++curIt;
             
-            auto head = (*prevIt).body_.front ();
+            auto head = (*prevIt)->body_.front ();
 
-            if (head.first <= 0 || head.first >= termSize.first - 1) { // x-crash
+            if (head.first <= 0 || head.first >= termSize.first - 1) {  // x-crash
+                (*prevIt)->clearCache ();
                 snakes_.erase (prevIt);
                 continue;
             }
-            if (head.second <= 0 || head.second >= termSize.second - 1) {// y-crash
+            if (head.second <= 0 || head.second >= termSize.second - 1) {   // y-crash
+                (*prevIt)->clearCache ();
                 snakes_.erase (prevIt);
                 continue;
             }
@@ -72,20 +63,21 @@ namespace gameModel {
             bool crash = false;
             for (auto nextIt = snakes_.begin (); nextIt != endIt; ++nextIt) {
                 if (nextIt == prevIt) {  // self crash
-                    for (auto snakeCurIt = std::next ((*prevIt).body_.begin ()), snakeEndIt = (*prevIt).body_.end (); snakeCurIt != snakeEndIt; ++snakeCurIt)
+                    for (auto snakeCurIt = std::next ((*prevIt)->body_.begin ()), snakeEndIt = (*prevIt)->body_.end (); snakeCurIt != snakeEndIt; ++snakeCurIt)
                         if (head == (*snakeCurIt)) {
                             crash = true;
                             break;
                         }
                 }
                 else {  // neighbour crash
-                    for (auto segment: nextIt->body_)
+                    for (auto segment: (*nextIt)->body_)
                         if (head == segment) {
                             crash = true;
                             break;
                         }
                 }
                 if (crash) {
+                    (*prevIt)->clearCache ();
                     snakes_.erase (prevIt);
                     break;
                 }
@@ -97,12 +89,20 @@ namespace gameModel {
 
     void Game::addGamer (Control::Human &ctrl)
     {
-        auto v = graphicInterface::View::get ();
-        Control::Snake s ({v->getTermSize ().first / 5, v->getTermSize ().second / 2 + snakes_.size ()});
+        auto v = graphicInterface::View::get ()->getTermSize ();
+        ctrl.setSnake ({v.first / 5, v.second / 2 + snakes_.size ()});
         
-        snakes_.push_back (s);
+        snakes_.push_back (&ctrl);
+    }
 
-        ctrl.setSnake (snakes_.back ());
+    void Game::addGamer (Control::StupidBot &ctrl)
+    {
+        auto v = graphicInterface::View::get ()->getTermSize ();
+        ctrl.setSnake ({v.first / 5, v.second / 2 + snakes_.size ()});
+
+        snakes_.push_back (&ctrl);
+
+        ctrl.setModel (this);
     }
 
     void Game::snakeStep (Control::Snake &s)
@@ -137,7 +137,7 @@ namespace gameModel {
     int Game::controller ()
     {
         for (auto &s : snakes_)
-            snakeStep (s);
+            snakeStep (*s);
 
         checkSnakeCrash ();
 

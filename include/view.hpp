@@ -17,7 +17,7 @@ namespace graphicInterface {
 
     public:
         static inline std::shared_ptr<View> obj = nullptr;
-        static std::shared_ptr<View> get (const std::string &type = textView);
+        static std::shared_ptr<View> get (const std::string &type = "");
 
         virtual ~View () = 0;
 

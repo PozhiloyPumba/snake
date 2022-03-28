@@ -20,7 +20,7 @@ namespace gameModel {
         const int beginSnakeLen_ = 5;
         std::mt19937 generator_{static_cast<long unsigned int> (std::chrono::system_clock::now ().time_since_epoch ().count ())};
         std::list<coord_t> rabbits_;
-        std::list<Control::Snake> snakes_;
+        std::list<Control::Snake *> snakes_;
         coord_t getNewRandomPair ();
         void drawAll ();
         int controller ();
@@ -31,6 +31,7 @@ namespace gameModel {
     public:
         Game ();
         void addGamer (Control::Human &ctrl);
+        void addGamer (Control::StupidBot &ctrl);
     };
 }  // namespace gameModel
 

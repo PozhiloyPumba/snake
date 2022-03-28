@@ -4,6 +4,11 @@
 #include <list>
 #include <string>
 #include <utility>
+#include <vector>
+
+namespace gameModel {
+    class Game;
+}
 
 namespace Control {
     using coord_t = std::pair<unsigned short, unsigned short>;
@@ -11,47 +16,59 @@ namespace Control {
     struct Snake {
         enum class dir {
             UP,
+            LEFT,
             DOWN,
-            RIGHT,
-            LEFT
+            RIGHT
         };
 
         std::list<coord_t> body_;
         dir direction_ = dir::RIGHT;
 
-        Snake (const coord_t &begin) {
+        void setSnake (const coord_t &begin) {
             for (int i = 0; i < 5; ++i)
                 body_.push_back ({begin.first - i, begin.second});
         }
+
+        virtual void clearCache () {}
     };
 
-    class Human final {
-        Snake *snake_ = nullptr;
+    class Human final : public Snake {
+        std::vector <std::string> buttons_;
 
-        inline void upHandler ()
+        inline void buttonHandler (dir direction)
         {
-            if (snake_->direction_ != Control::Snake::dir::DOWN)
-                snake_->direction_ = Control::Snake::dir::UP;
-        }
-        inline void downHandler ()
-        {
-            if (snake_->direction_ != Control::Snake::dir::UP)
-                snake_->direction_ = Control::Snake::dir::DOWN;
-        }
-        inline void rightHandler ()
-        {
-            if (snake_->direction_ != Control::Snake::dir::LEFT)
-                snake_->direction_ = Control::Snake::dir::RIGHT;
-        }
-        inline void leftHandler ()
-        {
-            if (snake_->direction_ != Control::Snake::dir::RIGHT)
-                snake_->direction_ = Control::Snake::dir::LEFT;
+            switch (direction){
+                case Snake::dir::UP:   
+                    if (direction_ != dir::DOWN)
+                        direction_ = dir::UP;
+                    break;
+                case Snake::dir::DOWN:
+                    if (direction_ != dir::UP)
+                        direction_ = dir::DOWN;
+                    break;
+                case Snake::dir::LEFT:
+                    if (direction_ != dir::RIGHT)
+                        direction_ = dir::LEFT;
+                    break;
+                case Snake::dir::RIGHT:
+                    if (direction_ != dir::LEFT)
+                        direction_ = dir::RIGHT;
+                    break;
+            }
         }
 
     public:
-        void setSnake (Snake &s) { snake_ = &s; }
-        Human (const std::string &up, const std::string &left, const std::string &down, const std::string &right);
+        Human (const std::initializer_list<std::string> &buttons);
+
+        void clearCache () override;
+    };
+
+    class StupidBot final : public Snake {
+        gameModel::Game *model_ = nullptr;
+
+    public:
+        StupidBot ();
+        void setModel (gameModel::Game *model) { model_ = model; }
     };
 }  // namespace Control
 

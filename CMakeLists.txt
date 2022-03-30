@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(Snake_Game)
 
+find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
 
 find_program(CLANG_FORMAT "clang-format")
 
@@ -19,10 +20,10 @@ endif()
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/source/*.cpp)
 
 set (EXEC_FILE "snake")
-
 add_executable (${EXEC_FILE} ${SOURCES})
 
 target_include_directories(${EXEC_FILE} PRIVATE include)
+target_link_libraries(${EXEC_FILE} sfml-graphics sfml-audio)
 
 set (COMPILER_SETTINGS
     -std=c++2a

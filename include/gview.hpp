@@ -1,6 +1,8 @@
 #ifndef GVIEW_HPP
 #define GVIEW_HPP
 
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "view.hpp"
 
 namespace graphicInterface {
@@ -13,13 +15,12 @@ namespace graphicInterface {
 
         ~GView () override;
 
-        void drawScene ();
         void run () override;
 
         std::pair<unsigned short, unsigned short> getTermSize () const override { return {0, 0}; }  // TODO:
         void paint (std::pair<unsigned short, unsigned short> &rabbit) override {}                  // TODO:
-        void paint (Control::Snake &snake) override {}                                              // TODO:
-        void drawFrame () override {}                                                               // TODO:
+        void paint (Control::Snake &snake) override {}                                              // TODO:    сколопендра
+        void drawFrame () override;                                                                 // TODO:
         void endHandler () override {}
     };
 }  // namespace graphicInterface

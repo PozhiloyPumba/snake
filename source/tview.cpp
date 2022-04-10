@@ -147,9 +147,9 @@ namespace graphicInterface {
 
                 request += c;
 
-                auto res = buttonHandler_.find (request);
+                auto res = buttonTable_.find (request);
 
-                if (res != buttonHandler_.end ()) {
+                if (res != buttonTable_.end ()) {
                     res->second ();
                     request = "";
                 }

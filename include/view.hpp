@@ -6,14 +6,15 @@
 #include <list>
 #include <memory>
 #include <unordered_map>
+#include <string_view>
 
 #include "model.hpp"
 
 namespace graphicInterface {
     class View {
     private:
-        static inline const std::string textView = "text";
-        static inline const std::string graphView = "graph";
+        static inline const std::string_view textView = "text";
+        static inline const std::string_view graphView = "graph";
 
     public:
         static inline std::shared_ptr<View> obj = nullptr;
@@ -34,7 +35,8 @@ namespace graphicInterface {
         std::function<void ()> drawing;
         std::function<int ()> setCoordObjs;
 
-        std::unordered_map<std::string, std::function<void ()>> buttonHandler_;
+        virtual void addButton (const std::string &button, const std::function<void ()> &handler) = 0;
+        virtual void eraseButton (const std::string &button_) = 0;
     };
 }  // namespace graphicInterface
 

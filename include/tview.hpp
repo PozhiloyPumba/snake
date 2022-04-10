@@ -32,6 +32,8 @@ namespace graphicInterface {
         struct winsize termSize_ = {0, 0, 0, 0};
         std::pair<unsigned short, unsigned short> virtSize_ = {0, 0};
 
+        std::unordered_map<std::string, std::function<void ()>> buttonTable_;
+
         inline void setColor (unsigned char colorFront, unsigned char colorBack) const { printf ("\e[48;5;%dm\e[38;5;%dm", colorBack, colorFront); }
         inline void resetColor () const { printf ("\e[m\e[1;1H"); }
         void drawHLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
@@ -51,6 +53,13 @@ namespace graphicInterface {
         void paint (std::pair<unsigned short, unsigned short> &rabbit) override;
         void paint (Control::Snake &snake) override;
         void drawFrame () override;
+
+        void addButton (const std::string &button, const std::function<void ()> &handler) override {buttonTable_.insert ({button, handler}); }
+        void eraseButton (const std::string &button) override {
+            auto res = buttonTable_.find (button);
+            if (res != buttonTable_.end ())
+                buttonTable_.erase (res);
+        }
 
         void run () override;
     };

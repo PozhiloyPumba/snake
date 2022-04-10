@@ -41,31 +41,37 @@ namespace Control {
                 case Snake::dir::UP:   
                     if (direction_ != dir::DOWN)
                         direction_ = dir::UP;
+                    printf ("up\n");
                     break;
                 case Snake::dir::DOWN:
                     if (direction_ != dir::UP)
                         direction_ = dir::DOWN;
+                    printf ("down\n");
                     break;
                 case Snake::dir::LEFT:
                     if (direction_ != dir::RIGHT)
                         direction_ = dir::LEFT;
+                    printf ("left\n");
                     break;
                 case Snake::dir::RIGHT:
                     if (direction_ != dir::LEFT)
                         direction_ = dir::RIGHT;
+                    printf ("right\n");
                     break;
             }
         }
+        void initHuman (const std::initializer_list<std::string> &buttons);
 
     public:
         Human (const std::initializer_list<std::string> &buttons);
+        Human (const std::string &defaultVariant);
 
         void clearCache () override;
     };
 
     class StupidBot final : public Snake {
         gameModel::Game *model_ = nullptr;
-
+        
     public:
         StupidBot ();
         void setModel (gameModel::Game *model) { model_ = model; }

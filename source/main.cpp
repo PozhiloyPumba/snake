@@ -8,8 +8,8 @@ int main (int argc, char *argv[])
     auto screen = graphicInterface::View::get ((argc == 2) ? argv[1] : "text");
     gameModel::Game model;
 
-    Control::Human h1 ({"\e[A", "\e[D", "\e[B", "\e[C"});
-    Control::Human h2 ({"w", "a", "s", "d"});
+    Control::Human h1 ("arrows");
+    Control::Human h2 ("wasd");
     Control::StupidBot bot;
 
     model.addGamer (h1);

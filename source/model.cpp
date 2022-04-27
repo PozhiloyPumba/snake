@@ -123,18 +123,6 @@ namespace gameModel {
         auto head = s.body_.front ();
         bool neSiel = true;
 
-        for (auto curIt = rabbits_.begin (), endIt = rabbits_.end (); curIt != endIt; ++curIt) {
-            if ((*curIt) == head) {
-                rabbits_.erase (curIt);
-                neSiel = false;
-                rabbits_.push_back (getNewRandomPair ());
-                break;
-            }
-        }
-
-        if (neSiel)
-            s.body_.pop_back ();
-
         coord_t newHead;
 
         switch (s.direction_) {
@@ -145,6 +133,18 @@ namespace gameModel {
         }
 
         s.body_.push_front (newHead);
+
+        for (auto curIt = rabbits_.begin (), endIt = rabbits_.end (); curIt != endIt; ++curIt) {
+            if ((*curIt) == newHead) {
+                rabbits_.erase (curIt);
+                neSiel = false;
+                rabbits_.push_back (getNewRandomPair ());
+                break;
+            }
+        }
+
+        if (neSiel)
+            s.body_.pop_back ();
     }
 
     void Game::botsHandler ()

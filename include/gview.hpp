@@ -31,6 +31,10 @@ namespace graphicInterface {
 
         void loadTexture (sf::Texture &dest, const std::string &fileName);
         void setTextureInSprite (const sf::Texture &texture);
+        void startScreen ();
+        void endScreen ();
+        void closeAndResizeHelper (const sf::Event &event);
+
     public:
         GView ();
 

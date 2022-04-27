@@ -109,6 +109,96 @@ namespace graphicInterface {
         }
     }
 
+    void GView::startScreen ()
+    {
+        using namespace std::chrono_literals;
+        auto globalStart = std::chrono::steady_clock::now ();
+        
+        while (window_.isOpen () && std::chrono::steady_clock::now () < globalStart + 3000ms) {
+            sf::Event event;
+            while (window_.pollEvent (event))
+                closeAndResizeHelper (event);
+
+            auto timer = [&] (auto time) {
+                sf::Text text (time, font_, 150);
+                text.setOrigin (
+                    text.getLocalBounds().width/2.0f, 
+                    text.getLocalBounds().height/2.0f
+                );
+
+                text.setFillColor (sf::Color::Green);
+                text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
+                window_.clear ();
+                drawFrame ();
+                window_.draw (text);
+                window_.display ();
+            };
+
+            if (std::chrono::steady_clock::now () < globalStart + 1000ms) {
+                timer ("3");
+                continue;
+            }
+            if (std::chrono::steady_clock::now () < globalStart + 2000ms) {
+                timer ("2");
+                continue;
+            }
+            timer ("1");
+        }
+    }
+
+    void GView::endScreen ()
+    {
+        const sf::Vector2u size = window_.getSize ();
+        sf::RectangleShape frameIn ({float (size.x - 2 * ceilSize_), float (size.y - 2 * ceilSize_)});
+        frameIn.setFillColor (sf::Color (0, 0, 0, 192));
+
+        frameIn.move (ceilSize_, ceilSize_);
+
+        window_.draw (frameIn);
+
+        sf::Music music;
+        if (!music.openFromFile("../sprites/VIKA.wav"))
+            throw std::invalid_argument ("music doesn't open");
+        
+        music.setLoop (true);
+        music.play ();
+
+        sf::Text text ("POINTS:", font_, 40);
+        text.setOrigin (
+            text.getLocalBounds().width/2.0f, 
+            text.getLocalBounds().height/2.0f
+        );
+
+        text.setFillColor (sf::Color::Green);
+        text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - 210);
+        window_.draw (text);
+        
+        writeScoreTable ();
+
+        window_.display ();
+
+        while (window_.isOpen ()) {
+            sf::Event event;
+            while (window_.pollEvent (event))
+                closeAndResizeHelper (event);
+        }
+    }
+
+    void GView::closeAndResizeHelper (const sf::Event &event)
+    {
+        if (event.type == sf::Event::Closed)
+            window_.close ();
+        if (event.type == sf::Event::Resized) {
+            virtSize_ = {event.size.width / ceilSize_, event.size.height / ceilSize_};
+            float w = static_cast<float> (event.size.width);
+            float h = static_cast<float> (event.size.height);
+            window_.setView (
+                sf::View (
+                    sf::Vector2f (w / 2.0, h / 2.0),
+                    sf::Vector2f (w, h)));
+        }
+    }
+
     void GView::drawFrame ()  // TODO: pacman edges
     {
         sf::Vector2u size = window_.getSize ();
@@ -182,7 +272,8 @@ namespace graphicInterface {
         window_.setVerticalSyncEnabled (true);
         
         using namespace std::chrono_literals;
-        auto globalStart = std::chrono::steady_clock::now ();
+
+        startScreen ();
 
         while (window_.isOpen ()) {
             sf::Event event;
@@ -191,18 +282,7 @@ namespace graphicInterface {
 
             while (std::chrono::steady_clock::now () < start + 200ms) {
                 while (window_.pollEvent (event)) {
-                    if (event.type == sf::Event::Closed)
-                        window_.close ();
-
-                    if (event.type == sf::Event::Resized) {
-                        virtSize_ = {event.size.width / ceilSize_, event.size.height / ceilSize_};
-                        float w = static_cast<float> (event.size.width);
-                        float h = static_cast<float> (event.size.height);
-                        window_.setView (
-                            sf::View (
-                                sf::Vector2f (w / 2.0, h / 2.0),
-                                sf::Vector2f (w, h)));
-                    }
+                    closeAndResizeHelper (event);
 
                     if (event.type == sf::Event::KeyPressed) {
                         auto res = buttonTable_.find (event.key.code);
@@ -219,49 +299,6 @@ namespace graphicInterface {
                 }
             }
 
-            if (std::chrono::steady_clock::now () < globalStart + 3000ms) { //refactor it pls
-                if (std::chrono::steady_clock::now () < globalStart + 1000ms) {
-                    sf::Text text ("3", font_, 150);
-                    text.setOrigin (
-                        text.getLocalBounds().width/2.0f, 
-                        text.getLocalBounds().height/2.0f
-                    );
-
-                    text.setFillColor (sf::Color::Green);
-                    text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
-                    window_.clear ();
-                    window_.draw (text);
-                    window_.display ();
-                    continue;
-                }
-                if (std::chrono::steady_clock::now () < globalStart + 2000ms) {
-                    sf::Text text ("2", font_, 150);
-                    text.setOrigin (
-                        text.getLocalBounds().width/2.0f, 
-                        text.getLocalBounds().height/2.0f
-                    );
-
-                    text.setFillColor (sf::Color::Green);
-                    text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
-                    window_.clear ();
-                    window_.draw (text);
-                    window_.display ();
-                    continue;
-                }
-                sf::Text text ("1", font_, 150);
-                text.setOrigin (
-                    text.getLocalBounds().width/2.0f, 
-                    text.getLocalBounds().height/2.0f
-                );
-
-                text.setFillColor (sf::Color::Green);
-                text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
-                window_.clear ();
-                window_.draw (text);
-                window_.display ();
-                continue;
-            }
-
             chapterOfCycle_ = 1;
             botsHandler ();
             auto result = setCoordObjs ();
@@ -273,40 +310,10 @@ namespace graphicInterface {
 
             window_.clear ();
             drawing ();
-
             window_.display ();
         }
 
-        if (end_) {
-            sf::Music music;
-            if (!music.openFromFile("../sprites/VIKA.wav"))
-                throw std::invalid_argument ("music doesn't open");
-            
-            music.setLoop (true);
-            music.play ();
-
-            sf::Text text ("POINTS:", font_, 40);
-            text.setOrigin (
-                text.getLocalBounds().width/2.0f, 
-                text.getLocalBounds().height/2.0f
-            );
-
-            text.setFillColor (sf::Color::Green);
-            text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - 210);
-            window_.draw (text);
-            
-            writeScoreTable ();
-
-            window_.display ();
-
-            while (window_.isOpen ()) {
-                sf::Event event;
-                while (window_.pollEvent (event))
-                {
-                    if (event.type == sf::Event::Closed)
-                        window_.close ();
-                }
-            }
-        }
+        if (end_)
+            endScreen ();
     }
 }  // namespace graphicInterface

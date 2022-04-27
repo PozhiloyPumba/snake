@@ -11,6 +11,7 @@ namespace gameModel {
         auto v = graphicInterface::View::get ();
         v->drawing = std::bind (&Game::drawAll, this);
         v->setCoordObjs = std::bind (&Game::controller, this);
+        v->botsHandler = std::bind (&Game::botsHandler, this);
 
         for (int i = 0; i < nRabbits_; ++i)
             rabbits_.push_back (getNewRandomPair ());
@@ -38,15 +39,14 @@ namespace gameModel {
             v->paint (*s);
     }
 
-    bool Game::checkSnakeCrash ()   //TODO: refactor code... 
+    bool Game::checkSnakeCrash ()  // TODO: refactor code...
     {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
 
-        for (auto curIt = snakes_.begin (), endIt = snakes_.end (); curIt != snakes_.end (); ) {
-            
+        for (auto curIt = snakes_.begin (), endIt = snakes_.end (); curIt != snakes_.end ();) {
             auto prevIt = curIt;
             ++curIt;
-            
+
             auto head = (*prevIt)->body_.front ();
 
             if (head.first <= 0 || head.first >= termSize.first - 1) {  // x-crash
@@ -54,7 +54,7 @@ namespace gameModel {
                 snakes_.erase (prevIt);
                 continue;
             }
-            if (head.second <= 0 || head.second >= termSize.second - 1) {   // y-crash
+            if (head.second <= 0 || head.second >= termSize.second - 1) {  // y-crash
                 (*prevIt)->clearCache ();
                 snakes_.erase (prevIt);
                 continue;
@@ -70,7 +70,7 @@ namespace gameModel {
                         }
                 }
                 else {  // neighbour crash
-                    for (auto segment: (*nextIt)->body_)
+                    for (auto segment : (*nextIt)->body_)
                         if (head == segment) {
                             crash = true;
                             break;
@@ -91,7 +91,7 @@ namespace gameModel {
     {
         auto v = graphicInterface::View::get ()->getTermSize ();
         ctrl.setSnake ({v.first / 5, v.second / 2 + snakes_.size ()});
-        
+
         snakes_.push_back (&ctrl);
     }
 
@@ -132,6 +132,18 @@ namespace gameModel {
         }
 
         s.body_.push_front (newHead);
+    }
+
+    void Game::botsHandler ()
+    {
+        auto curIt = snakes_.begin (), endIt = snakes_.end ();
+        while (curIt != endIt) {
+            curIt = std::find_if (curIt, endIt, [] (auto &sn) { return sn->whoami == Control::Snake::controlType::BOT; });
+            if (curIt != endIt) {
+                auto *bot = static_cast<Control::StupidBot *> (*(curIt++));
+                bot->step ();
+            }
+        }
     }
 
     int Game::controller ()

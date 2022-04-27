@@ -18,7 +18,7 @@ namespace graphicInterface {
         TView::changeTermSizeHandler ();
     }
 
-    TView::TView (int fps) : delay_ (1000000 / fps)
+    TView::TView ()
     {
         tcgetattr (0, &old_);
         struct termios raw = {};
@@ -85,7 +85,7 @@ namespace graphicInterface {
         fflush (stdout);
     }
 
-    void TView::paint (std::pair<unsigned short, unsigned short> &rabbit)
+    void TView::paint (const std::pair<unsigned short, unsigned short> &rabbit)
     {
         setColor (black_, lightGrey_);
         sym_ = {' ', ' '};
@@ -94,7 +94,7 @@ namespace graphicInterface {
         fflush (stdout);
     }
 
-    void TView::paint (Control::Snake &snake)
+    void TView::paint (const Control::Snake &snake)
     {
         setColor (black_, red_);
         switch (snake.direction_) {
@@ -141,7 +141,7 @@ namespace graphicInterface {
         auto start = std::chrono::steady_clock::now ();
 
         while (std::chrono::steady_clock::now () < start + 200ms) {
-            if (poll (&in, 1, 10) == 1) { //10 because I can do it)))
+            if (poll (&in, 1, 10) == 1) {  // 10 because I can do it)))
                 unsigned char c;
                 read (0, &c, 1);
 
@@ -168,6 +168,8 @@ namespace graphicInterface {
         int result;
         while (!end_) {
             buttonHandler ();
+            botsHandler ();
+
             result = setCoordObjs ();
             if (result) {
                 endHandler ();
@@ -178,7 +180,7 @@ namespace graphicInterface {
         }
 
         printf ("\e[1;1H\e[J");  // clearing window
-        //TODO: normal quit
+        // TODO: normal quit
         if (result == 1)
             printf ("Game Over\n");
         else if (result == 2)

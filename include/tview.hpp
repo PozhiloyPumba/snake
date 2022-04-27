@@ -10,7 +10,6 @@
 #include <functional>
 #include <iterator>
 #include <utility>
-#include <chrono>
 
 #include "view.hpp"
 
@@ -23,7 +22,6 @@ namespace graphicInterface {
         const int red_ = 196;
         const int green_ = 46;
 
-        int delay_;
         bool end_ = false;
 
         struct termios old_;
@@ -41,7 +39,7 @@ namespace graphicInterface {
         void buttonHandler ();
 
     public:
-        TView (int fps = 120);
+        TView ();
         ~TView () override;
 
         static inline std::function<void ()> interruptHandler;
@@ -50,12 +48,13 @@ namespace graphicInterface {
         void endHandler () override;
 
         std::pair<unsigned short, unsigned short> getTermSize () const override { return virtSize_; }
-        void paint (std::pair<unsigned short, unsigned short> &rabbit) override;
-        void paint (Control::Snake &snake) override;
+        void paint (const std::pair<unsigned short, unsigned short> &rabbit) override;
+        void paint (const Control::Snake &snake) override;
         void drawFrame () override;
 
-        void addButton (const std::string &button, const std::function<void ()> &handler) override {buttonTable_.insert ({button, handler}); }
-        void eraseButton (const std::string &button) override {
+        void addButton (const std::string &button, const std::function<void ()> &handler) override { buttonTable_.insert ({button, handler}); }
+        void eraseButton (const std::string &button) override
+        {
             auto res = buttonTable_.find (button);
             if (res != buttonTable_.end ())
                 buttonTable_.erase (res);

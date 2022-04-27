@@ -10,11 +10,11 @@ int main (int argc, char *argv[])
 
     Control::Human h1 ("arrows");
     Control::Human h2 ("wasd");
-    Control::StupidBot bot;
+    // Control::StupidBot bot;
 
     model.addGamer (h1);
     model.addGamer (h2);
-    model.addGamer (bot);
+    // model.addGamer (bot);
 
     screen->run ();
 

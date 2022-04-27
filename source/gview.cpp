@@ -1,16 +1,54 @@
 #include "gview.hpp"
 
 namespace graphicInterface {
-    #define X_SCREEN_SIZE 800.
-    #define Y_SCREEN_SIZE 600.
-    
-    GView::~GView ()
+#define X_SCREEN_SIZE 800.
+#define Y_SCREEN_SIZE 600.
+
+    GView::GView ()  // TODO: GAY ON SFML CREATOR fix it pls
     {
+        loadTexture (freshMeat_, "../sprites/freshMeat.png");
+        virtSize_ = {X_SCREEN_SIZE / ceilSize_, Y_SCREEN_SIZE / ceilSize_};
+
+        for (int i = 0; i < 2; ++i) {
+            sf::Texture pacman;
+            loadTexture (pacman, "../sprites/pacman" + std::to_string (i) + ".png");
+            head_.push_back (pacman);
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            sf::Texture tail;
+            loadTexture (tail, "../sprites/tail" + std::to_string (i) + ".png");
+            tail_.push_back (tail);
+        }
     }
 
-    sf::Keyboard::Key GView::fromStringtoKey (const std::string &button)    // I hate this function
+    void GView::loadTexture (sf::Texture &dest, const std::string &fileName)
     {
-        switch (std::toupper(button[0])) {
+        if (!dest.loadFromFile (fileName))
+            throw std::invalid_argument (fileName + std::string ("doesn't open"));
+
+        dest.setSmooth (true);
+    }
+
+    void GView::setTextureInSprite (const sf::Texture &texture)
+    {
+        spr_.setTexture (texture);
+        sf::Vector2f targetSize(ceilSize_, ceilSize_);
+
+        spr_.setScale(
+            targetSize.x / spr_.getLocalBounds().width, 
+            targetSize.y / spr_.getLocalBounds().height);
+         
+        spr_.setOrigin(
+            spr_.getLocalBounds().width/2.0f, 
+            spr_.getLocalBounds().height/2.0f);
+        
+        spr_.setRotation (0);
+    }
+
+    sf::Keyboard::Key GView::fromStringtoKey (const std::string &button)  // I hate this function
+    {
+        switch (std::toupper (button[0])) {
             case 'A': return sf::Keyboard::A;
             case 'B': return sf::Keyboard::B;
             case 'C': return sf::Keyboard::C;
@@ -38,7 +76,8 @@ namespace graphicInterface {
             case 'Y': return sf::Keyboard::Y;
             case 'Z': return sf::Keyboard::Z;
             case '\e': {
-                if (button.length () == 1) return sf::Keyboard::Escape;
+                if (button.length () == 1)
+                    return sf::Keyboard::Escape;
                 if (button.length () == 3 && button[1] == '[') {
                     switch (button[2]) {
                         case 'A': return sf::Keyboard::Up;
@@ -67,75 +106,132 @@ namespace graphicInterface {
         }
     }
 
-    void GView::drawFrame ()
+    void GView::drawFrame ()  // TODO: pacman edges
     {
         sf::Vector2u size = window_.getSize ();
         size = {size.x - size.x % ceilSize_, size.y - size.y % ceilSize_};
-        sf::RectangleShape frame ({float(size.x), float(size.y)});
+        sf::RectangleShape frame ({float (size.x), float (size.y)});
         frame.setFillColor (sf::Color::Cyan);
 
-        sf::RectangleShape frameIn ({float(size.x  - 2 * ceilSize_), float(size.y - 2 * ceilSize_)});
+        sf::RectangleShape frameIn ({float (size.x - 2 * ceilSize_), float (size.y - 2 * ceilSize_)});
         frameIn.setFillColor (sf::Color::Black);
 
         frameIn.move (ceilSize_, ceilSize_);
-        std::cout << frame.getSize().x << " " << frame.getSize().y << std::endl;
 
         window_.draw (frame);
         window_.draw (frameIn);
     }
 
+    void GView::paint (const std::pair<unsigned short, unsigned short> &rabbit) //TODO: it needs in some moving
+    {
+        setTextureInSprite (freshMeat_);
+        spr_.setPosition ((rabbit.first + 0.5) * ceilSize_, (rabbit.second + 0.5) * ceilSize_  + 1);
+
+        window_.draw (spr_);
+    }
+
+    void GView::paint (const Control::Snake &snake) //TODO:
+    {
+        setTextureInSprite (head_[chapterOfCycle_]);
+
+        switch (snake.direction_) {
+            case Control::Snake::dir::UP:   spr_.setRotation (90);  break;
+            case Control::Snake::dir::DOWN: spr_.setRotation (-90); break;
+            case Control::Snake::dir::LEFT: spr_.setRotation (0);   break;
+            case Control::Snake::dir::RIGHT:spr_.setRotation (180); break;
+        }
+        auto headPosition = *(snake.body_.begin ());
+        spr_.setPosition ((headPosition.first + 0.5) * ceilSize_, (headPosition.second + 0.5) * ceilSize_);
+
+        window_.draw (spr_);
+        
+        int i = 0;
+        for (auto curIt = ++snake.body_.begin (), endIt = snake.body_.end (); curIt != endIt; ++curIt) {
+            
+            setTextureInSprite (tail_[++i % 4]);
+            spr_.setPosition ((curIt->first + 0.5) * ceilSize_, (curIt->second + 0.5) * ceilSize_);
+
+            window_.draw (spr_);
+        }
+    }
+
     void GView::run ()
     {
-        window_.create(sf::VideoMode(X_SCREEN_SIZE, Y_SCREEN_SIZE), "Snake memes");
+        window_.create (sf::VideoMode (X_SCREEN_SIZE, Y_SCREEN_SIZE), "Snake memes");
 
         const sf::Vector2u size = window_.getSize ();
         virtSize_ = {size.x / ceilSize_, size.y / ceilSize_};
-        window_.setVerticalSyncEnabled(true);
-
-        sf::Texture texture;
-        if (!texture.loadFromFile("../sprites/jaba.png"))
-            throw std::invalid_argument ("jaba doesn't open");    //TODO:
+        window_.setVerticalSyncEnabled (true);
         
-        texture.setSmooth(true);
-
-        sf::Music music;
-        if (!music.openFromFile("../sprites/spinner.wav"))
-            throw std::invalid_argument ("music doesn't open");
-        // Play the music
-        music.setLoop (true);
-        music.play ();
+        using namespace std::chrono_literals;
 
         while (window_.isOpen ()) {
             sf::Event event;
-            while (window_.pollEvent(event))
-            {
-                if (event.type == sf::Event::Closed)
-                    window_.close();
 
-                if (event.type == sf::Event::Resized) {
-                    virtSize_ = {event.size.width / ceilSize_, event.size.height / ceilSize_};
-                    float w = static_cast<float>(event.size.width);
-                    float h = static_cast<float>(event.size.height);          
-                    window_.setView(
-                        sf::View(
-                            sf::Vector2f(w / 2.0, h / 2.0), 
-                            sf::Vector2f(w, h)
-                        )
-                    );
+            auto start = std::chrono::steady_clock::now ();
+
+            while (std::chrono::steady_clock::now () < start + 200ms) {
+                while (window_.pollEvent (event)) {
+                    if (event.type == sf::Event::Closed)
+                        window_.close ();
+
+                    if (event.type == sf::Event::Resized) {
+                        virtSize_ = {event.size.width / ceilSize_, event.size.height / ceilSize_};
+                        float w = static_cast<float> (event.size.width);
+                        float h = static_cast<float> (event.size.height);
+                        window_.setView (
+                            sf::View (
+                                sf::Vector2f (w / 2.0, h / 2.0),
+                                sf::Vector2f (w, h)));
+                    }
+
+                    if (event.type == sf::Event::KeyPressed) {
+                        auto res = buttonTable_.find (event.key.code);
+                        if (res != buttonTable_.end ())
+                            res->second ();
+                    }
                 }
+                if (chapterOfCycle_ && std::chrono::steady_clock::now () > start + 100ms) {
+                    chapterOfCycle_ = 0;
+                    window_.clear ();
+                    drawing ();
 
-                if (event.type == sf::Event::KeyPressed) {
-                    auto res = buttonTable_.find (event.key.code);
-                    if (res != buttonTable_.end ())
-                        res->second ();
+                    window_.display ();
                 }
             }
+            chapterOfCycle_ = 1;
 
-            window_.clear();
-            drawFrame ();
+            botsHandler ();
 
-            window_.display();
+            auto result = setCoordObjs ();
 
+            if (result) {
+                end_ = true;
+                break;
+            }
+
+            window_.clear ();
+            drawing ();
+
+            window_.display ();
+        }
+
+        if (end_) {
+            sf::Music music;
+            if (!music.openFromFile("../sprites/VIKA.wav"))
+                throw std::invalid_argument ("music doesn't open");
+            
+            music.setLoop (true);
+            music.play ();
+
+            while (window_.isOpen ()) {
+                sf::Event event;
+                while (window_.pollEvent (event))
+                {
+                    if (event.type == sf::Event::Closed)
+                        window_.close ();
+                }
+            }
         }
     }
 }  // namespace graphicInterface

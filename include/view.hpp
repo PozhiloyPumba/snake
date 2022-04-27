@@ -5,8 +5,9 @@
 #include <iostream>
 #include <list>
 #include <memory>
-#include <unordered_map>
 #include <string_view>
+#include <unordered_map>
+#include <chrono>
 
 #include "model.hpp"
 
@@ -27,13 +28,14 @@ namespace graphicInterface {
         using coord_t = std::pair<unsigned short, unsigned short>;
 
         virtual coord_t getTermSize () const = 0;
-        virtual void paint (coord_t &rabbit) = 0;        // rabbit
-        virtual void paint (Control::Snake &snake) = 0;  // snake
-        virtual void drawFrame () = 0;                   // frame
+        virtual void paint (const coord_t &rabbit) = 0;        // rabbit
+        virtual void paint (const Control::Snake &snake) = 0;  // snake
+        virtual void drawFrame () = 0;                         // frame
         virtual void endHandler () = 0;
 
         std::function<void ()> drawing;
         std::function<int ()> setCoordObjs;
+        std::function<void ()> botsHandler;
 
         virtual void addButton (const std::string &button, const std::function<void ()> &handler) = 0;
         virtual void eraseButton (const std::string &button_) = 0;

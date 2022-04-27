@@ -23,7 +23,7 @@ else()
     add_compile_options("-Wall" "-Wextra" "$<$<CONFIG:RELEASE>:-O2>")
 endif()
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/source/*.cpp)

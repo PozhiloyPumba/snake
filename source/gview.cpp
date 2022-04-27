@@ -4,8 +4,11 @@ namespace graphicInterface {
 #define X_SCREEN_SIZE 800.
 #define Y_SCREEN_SIZE 600.
 
-    GView::GView ()  // TODO: GAY ON SFML CREATOR fix it pls
+    GView::GView ()
     {
+        if (!font_.loadFromFile ("../sprites/ComicSansMS.ttf"))
+            throw std::invalid_argument ("../sprites/ComicSansMS.ttf doesn't open");
+        
         loadTexture (freshMeat_, "../sprites/freshMeat.png");
         virtSize_ = {X_SCREEN_SIZE / ceilSize_, Y_SCREEN_SIZE / ceilSize_};
 
@@ -36,7 +39,7 @@ namespace graphicInterface {
         sf::Vector2f targetSize(ceilSize_, ceilSize_);
 
         spr_.setScale(
-            targetSize.x / spr_.getLocalBounds().width, 
+            targetSize.x / spr_.getLocalBounds().width,
             targetSize.y / spr_.getLocalBounds().height);
          
         spr_.setOrigin(
@@ -130,7 +133,7 @@ namespace graphicInterface {
         window_.draw (spr_);
     }
 
-    void GView::paint (const Control::Snake &snake) //TODO:
+    void GView::paint (const Control::Snake &snake)
     {
         setTextureInSprite (head_[chapterOfCycle_]);
 
@@ -155,7 +158,22 @@ namespace graphicInterface {
         }
     }
 
-    void GView::run ()
+    void GView::write (const std::pair <std::string, size_t> &line)
+    {
+        sf::Text text ("", font_);
+        text.setFillColor (sf::Color::Magenta);
+
+        text.setString (std::to_string (++alreadyWriten_) + ". " + line.first + "\t" + std::to_string (line.second));
+        text.setOrigin (
+            text.getLocalBounds().width/2.0f, 
+            text.getLocalBounds().height/2.0f
+        );
+
+        text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - 200 + alreadyWriten_ * 30);
+        window_.draw (text);
+    }
+
+    void GView::run ()  //TODO: refactor
     {
         window_.create (sf::VideoMode (X_SCREEN_SIZE, Y_SCREEN_SIZE), "Snake memes");
 
@@ -164,6 +182,7 @@ namespace graphicInterface {
         window_.setVerticalSyncEnabled (true);
         
         using namespace std::chrono_literals;
+        auto globalStart = std::chrono::steady_clock::now ();
 
         while (window_.isOpen ()) {
             sf::Event event;
@@ -199,10 +218,52 @@ namespace graphicInterface {
                     window_.display ();
                 }
             }
+
+            if (std::chrono::steady_clock::now () < globalStart + 3000ms) { //refactor it pls
+                if (std::chrono::steady_clock::now () < globalStart + 1000ms) {
+                    sf::Text text ("3", font_, 150);
+                    text.setOrigin (
+                        text.getLocalBounds().width/2.0f, 
+                        text.getLocalBounds().height/2.0f
+                    );
+
+                    text.setFillColor (sf::Color::Green);
+                    text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
+                    window_.clear ();
+                    window_.draw (text);
+                    window_.display ();
+                    continue;
+                }
+                if (std::chrono::steady_clock::now () < globalStart + 2000ms) {
+                    sf::Text text ("2", font_, 150);
+                    text.setOrigin (
+                        text.getLocalBounds().width/2.0f, 
+                        text.getLocalBounds().height/2.0f
+                    );
+
+                    text.setFillColor (sf::Color::Green);
+                    text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
+                    window_.clear ();
+                    window_.draw (text);
+                    window_.display ();
+                    continue;
+                }
+                sf::Text text ("1", font_, 150);
+                text.setOrigin (
+                    text.getLocalBounds().width/2.0f, 
+                    text.getLocalBounds().height/2.0f
+                );
+
+                text.setFillColor (sf::Color::Green);
+                text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
+                window_.clear ();
+                window_.draw (text);
+                window_.display ();
+                continue;
+            }
+
             chapterOfCycle_ = 1;
-
             botsHandler ();
-
             auto result = setCoordObjs ();
 
             if (result) {
@@ -223,6 +284,20 @@ namespace graphicInterface {
             
             music.setLoop (true);
             music.play ();
+
+            sf::Text text ("POINTS:", font_, 40);
+            text.setOrigin (
+                text.getLocalBounds().width/2.0f, 
+                text.getLocalBounds().height/2.0f
+            );
+
+            text.setFillColor (sf::Color::Green);
+            text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - 210);
+            window_.draw (text);
+            
+            writeScoreTable ();
+
+            window_.display ();
 
             while (window_.isOpen ()) {
                 sf::Event event;

@@ -12,6 +12,7 @@ namespace gameModel {
         v->drawing = std::bind (&Game::drawAll, this);
         v->setCoordObjs = std::bind (&Game::controller, this);
         v->botsHandler = std::bind (&Game::botsHandler, this);
+        v->writeScoreTable = std::bind (&Game::drawScore, this);
 
         for (int i = 0; i < nRabbits_; ++i)
             rabbits_.push_back (getNewRandomPair ());
@@ -27,6 +28,14 @@ namespace gameModel {
         return {randFirst (generator_), randSecond (generator_)};
     }
 
+    void Game::drawScore ()
+    {
+        auto v = graphicInterface::View::get ();
+
+        for (auto line: tableScore_)
+            v->write (line);
+    }
+
     void Game::drawAll ()
     {
         auto v = graphicInterface::View::get ();
@@ -39,7 +48,7 @@ namespace gameModel {
             v->paint (*s);
     }
 
-    bool Game::checkSnakeCrash ()  // TODO: refactor code...
+    bool Game::checkSnakeCrash ()
     {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
 
@@ -51,11 +60,13 @@ namespace gameModel {
 
             if (head.first <= 0 || head.first >= termSize.first - 1) {  // x-crash
                 (*prevIt)->clearCache ();
+                tableScore_.insert({(*prevIt)->name_, (*prevIt)->getLength ()});
                 snakes_.erase (prevIt);
                 continue;
             }
             if (head.second <= 0 || head.second >= termSize.second - 1) {  // y-crash
                 (*prevIt)->clearCache ();
+                tableScore_.insert({(*prevIt)->name_, (*prevIt)->getLength ()});
                 snakes_.erase (prevIt);
                 continue;
             }
@@ -78,6 +89,7 @@ namespace gameModel {
                 }
                 if (crash) {
                     (*prevIt)->clearCache ();
+                    tableScore_.insert({(*prevIt)->name_, (*prevIt)->getLength ()});
                     snakes_.erase (prevIt);
                     break;
                 }

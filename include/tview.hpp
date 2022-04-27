@@ -50,6 +50,7 @@ namespace graphicInterface {
         std::pair<unsigned short, unsigned short> getTermSize () const override { return virtSize_; }
         void paint (const std::pair<unsigned short, unsigned short> &rabbit) override;
         void paint (const Control::Snake &snake) override;
+        void write (const std::pair <std::string, size_t> &line) override {}    //TODO:
         void drawFrame () override;
 
         void addButton (const std::string &button, const std::function<void ()> &handler) override { buttonTable_.insert ({button, handler}); }

@@ -11,17 +11,19 @@
 namespace graphicInterface {
     using SpriteAndTexture = std::pair<sf::Sprite, sf::Texture>;
 
-    class GView final : public View {  // TODO: at the end VI KA
+    class GView final : public View {
     private:
-        const size_t ceilSize_ = 20;
+        const unsigned ceilSize_ = 20;
         bool end_ = false;
         int chapterOfCycle_ = 1;
+        int alreadyWriten_ = 0;
 
         sf::RenderWindow window_;
         sf::Sprite spr_;
         sf::Texture freshMeat_;
         std::vector<sf::Texture> head_;
         std::vector<sf::Texture> tail_;
+        sf::Font font_;
 
         std::unordered_map<sf::Keyboard::Key, std::function<void ()>> buttonTable_;
         sf::Keyboard::Key fromStringtoKey (const std::string &button);
@@ -39,6 +41,7 @@ namespace graphicInterface {
         std::pair<unsigned short, unsigned short> getTermSize () const override { return virtSize_; }
         void paint (const std::pair<unsigned short, unsigned short> &rabbit) override;
         void paint (const Control::Snake &snake) override;
+        void write (const std::pair <std::string, size_t> &line) override;
         void drawFrame () override;
         void endHandler () override {}
 

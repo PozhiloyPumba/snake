@@ -8,6 +8,8 @@ namespace Control {
 
     void Human::initHuman (const std::initializer_list<std::string> &buttons)  // (up, left, down, right)
     {
+        name_ = "Player" + std::to_string (++numberOfPlayers_);
+
         if (buttons.size () != 4)
             throw std::logic_error ("you choose the wrong quantity of buttons");
 
@@ -48,7 +50,10 @@ namespace Control {
             v->eraseButton (but);
     }
 
-    StupidBot::StupidBot () : Snake (controlType::BOT) {}
+    StupidBot::StupidBot () : Snake (controlType::BOT)
+    {
+        name_ = "StupidBot" + std::to_string (++numberOfStupidBots_);
+    }
 
     void StupidBot::step ()  // TODO: make it some smarter)))
     {

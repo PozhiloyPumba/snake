@@ -30,11 +30,16 @@ namespace Control {
         dir prevDir_ = dir::RIGHT;   // it is for fix rotate to itself
         dir direction_ = dir::RIGHT;
         controlType whoami;
+        std::string name_;
 
         void setSnake (const coord_t &begin)
         {
             for (int i = 0; i < 4; ++i)
                 body_.push_back ({begin.first - i, begin.second});
+        }
+
+        size_t getLength () const {
+            return body_.size ();
         }
 
         virtual void clearCache () {}
@@ -43,6 +48,7 @@ namespace Control {
     };
 
     class Human final : public Snake {
+        static inline int numberOfPlayers_ = 0;
         std::vector<std::string> buttons_;
 
         inline void buttonHandler (dir direction)
@@ -72,12 +78,17 @@ namespace Control {
         Human (const std::initializer_list<std::string> &buttons);
         Human (const std::string &defaultVariant);
 
+        void setName (const std::string &name) {
+            name_ = name;
+        }
+
         void clearCache () override;
 
         ~Human () override {}
     };
 
     class StupidBot final : public Snake {
+        static inline int numberOfStupidBots_ = 0;
         gameModel::Game *model_ = nullptr;
 
     public:

@@ -27,6 +27,7 @@ namespace Control {
         };
 
         std::list<coord_t> body_;
+        dir prevDir_ = dir::RIGHT;   // it is for fix rotate to itself
         dir direction_ = dir::RIGHT;
         controlType whoami;
 
@@ -48,19 +49,19 @@ namespace Control {
         {
             switch (direction) {
                 case Snake::dir::UP:
-                    if (direction_ != dir::DOWN)
+                    if (prevDir_ != dir::DOWN)
                         direction_ = dir::UP;
                     break;
                 case Snake::dir::DOWN:
-                    if (direction_ != dir::UP)
+                    if (prevDir_ != dir::UP)
                         direction_ = dir::DOWN;
                     break;
                 case Snake::dir::LEFT:
-                    if (direction_ != dir::RIGHT)
+                    if (prevDir_ != dir::RIGHT)
                         direction_ = dir::LEFT;
                     break;
                 case Snake::dir::RIGHT:
-                    if (direction_ != dir::LEFT)
+                    if (prevDir_ != dir::LEFT)
                         direction_ = dir::RIGHT;
                     break;
             }

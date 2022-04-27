@@ -107,6 +107,7 @@ namespace gameModel {
 
     void Game::snakeStep (Control::Snake &s)
     {
+        s.prevDir_ = s.direction_;
         auto head = s.body_.front ();
         bool neSiel = true;
 

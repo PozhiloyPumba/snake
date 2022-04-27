@@ -37,7 +37,7 @@ namespace gameModel {
 
     public:
         Game ();
-        void addGamer (Control::Human &ctrl);
+        void addGamer (Control::Human &ctrl);    // it is copy for fix dead objects in main
         void addGamer (Control::StupidBot &ctrl);
     };
 }  // namespace gameModel

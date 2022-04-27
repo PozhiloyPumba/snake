@@ -10,13 +10,16 @@ int main (int argc, char *argv[])
 
     Control::Human h1 ("arrows");
     Control::Human h2 ("wasd");
-    Control::StupidBot bot;
 
     h1.setName ("aboba");
 
     model.addGamer (h1);
     model.addGamer (h2);
-    // model.addGamer (bot);
+    
+    for (int i = 0; i < 2; ++i) {
+        Control::StupidBot bot;
+        model.addGamer (bot);
+    }
 
     screen->run ();
 

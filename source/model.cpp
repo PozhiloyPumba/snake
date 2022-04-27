@@ -61,12 +61,14 @@ namespace gameModel {
             if (head.first <= 0 || head.first >= termSize.first - 1) {  // x-crash
                 (*prevIt)->clearCache ();
                 tableScore_.insert({(*prevIt)->name_, (*prevIt)->getLength ()});
+                delete *prevIt;
                 snakes_.erase (prevIt);
                 continue;
             }
             if (head.second <= 0 || head.second >= termSize.second - 1) {  // y-crash
                 (*prevIt)->clearCache ();
                 tableScore_.insert({(*prevIt)->name_, (*prevIt)->getLength ()});
+                delete *prevIt;
                 snakes_.erase (prevIt);
                 continue;
             }
@@ -90,6 +92,7 @@ namespace gameModel {
                 if (crash) {
                     (*prevIt)->clearCache ();
                     tableScore_.insert({(*prevIt)->name_, (*prevIt)->getLength ()});
+                    delete *prevIt;
                     snakes_.erase (prevIt);
                     break;
                 }
@@ -102,19 +105,21 @@ namespace gameModel {
     void Game::addGamer (Control::Human &ctrl)
     {
         auto v = graphicInterface::View::get ()->getTermSize ();
-        ctrl.setSnake ({v.first / 5, v.second / 2 + snakes_.size ()});
+        auto *hum = new Control::Human (ctrl);
+        hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size ()) % v.second});
 
-        snakes_.push_back (&ctrl);
+        snakes_.push_back (hum);
     }
 
     void Game::addGamer (Control::StupidBot &ctrl)
     {
         auto v = graphicInterface::View::get ()->getTermSize ();
-        ctrl.setSnake ({v.first / 5, v.second / 2 + snakes_.size ()});
+        auto *bot = new Control::StupidBot (ctrl);
+        bot->setSnake ({v.first / 5, (v.second / 2 + snakes_.size ()) % v.second});
 
-        snakes_.push_back (&ctrl);
+        snakes_.push_back (bot);
 
-        ctrl.setModel (this);
+        bot->setModel (this);
     }
 
     void Game::snakeStep (Control::Snake &s)

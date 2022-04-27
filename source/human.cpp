@@ -58,23 +58,5 @@ namespace Control {
     void StupidBot::step ()  // TODO: make it some smarter)))
     {
         static int a = 0;
-        switch (static_cast<Snake::dir> (++a % 4)) {
-            case Snake::dir::UP:
-                if (direction_ != dir::DOWN)
-                    direction_ = dir::UP;
-                break;
-            case Snake::dir::DOWN:
-                if (direction_ != dir::UP)
-                    direction_ = dir::DOWN;
-                break;
-            case Snake::dir::LEFT:
-                if (direction_ != dir::RIGHT)
-                    direction_ = dir::LEFT;
-                break;
-            case Snake::dir::RIGHT:
-                if (direction_ != dir::LEFT)
-                    direction_ = dir::RIGHT;
-                break;
-        }
     }
 }  // namespace Control

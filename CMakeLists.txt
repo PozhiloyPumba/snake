@@ -17,27 +17,19 @@ if(CLANG_FORMAT)
     )
 endif()
 
+if(MSVC)
+    add_compile_options("/W4" "$<$<CONFIG:RELEASE>:/O2>")
+else()
+    add_compile_options("-Wall" "-Wextra" "$<$<CONFIG:RELEASE>:-O2>")
+endif()
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/source/*.cpp)
 
 set (EXEC_FILE "snake")
 add_executable (${EXEC_FILE} ${SOURCES})
 
 target_include_directories(${EXEC_FILE} PRIVATE include)
-target_link_libraries(${EXEC_FILE} sfml-graphics sfml-audio)
-
-set (COMPILER_SETTINGS
-    -std=c++2a
-    -Wall
-    -Wextra
-
-    -Wsign-promo
-    -Wdouble-promotion
-
-    -Wfloat-equal
-
-    -Wdiv-by-zero
-
-    -O2
-)
-
-target_compile_options(${EXEC_FILE} PRIVATE ${COMPILER_SETTINGS})
+target_link_libraries(${EXEC_FILE} sfml-graphics sfml-audio sfml-window)

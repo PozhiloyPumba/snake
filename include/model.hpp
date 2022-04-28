@@ -21,7 +21,7 @@ namespace gameModel {
         std::mt19937 generator_{static_cast<long long unsigned> (std::chrono::system_clock::now ().time_since_epoch ().count ())};
         std::list<coord_t> rabbits_;
         std::list<Control::Snake *> snakes_;
-        std::vector<int> available_;
+        std::set<int> available_;
 
         using ScoreLine = std::pair<std::string, size_t>;
         static inline std::function<bool (ScoreLine, ScoreLine)> tablePred_ = [] (const ScoreLine &lhs, const ScoreLine &rhs) { return lhs.second > rhs.second; };

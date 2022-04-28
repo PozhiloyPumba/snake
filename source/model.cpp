@@ -22,17 +22,16 @@ namespace gameModel {
         auto fieldSize = (size.first - 2) * (size.second - 2);
 
         std::generate_n (
-            std::back_insert_iterator (available_),
+            std::inserter (available_, available_.end ()),
             fieldSize - 1,
             [n = 0] () mutable { return ++n; });
 
         for (int i = 0; i < nRabbits_; ++i) {
-            if (nRabbits_ > available_.size ())
+            if (static_cast <unsigned> (nRabbits_) > available_.size ())
                 break;
             rabbits_.push_back (getNewRandomPair ());
             auto last = rabbits_.back ();
-            available_.erase (std::remove_if (available_.begin (), available_.end (), [this, last] (auto i) { return i == indexFromPair (last); }),
-                              available_.end ());
+            available_.erase (indexFromPair (last));
         }
     }
 
@@ -40,7 +39,8 @@ namespace gameModel {
     {
         std::uniform_int_distribution<int> rand (0, available_.size () - 1);
         auto rnd = rand (generator_);
-        return pairFromIndex (available_[rnd]);
+        auto reqIt = std::next (available_.begin (), rnd);
+        return pairFromIndex (*reqIt);
     }
 
     int Game::indexFromPair (const coord_t &pair)
@@ -94,7 +94,7 @@ namespace gameModel {
                 (*prevIt)->clearCache ();
                 tableScore_.insert ({(*prevIt)->name_, (*prevIt)->getLength ()});
                 for (auto elem : (*prevIt)->body_)
-                    available_.push_back (indexFromPair (elem));
+                    available_.insert (indexFromPair (elem));
                 delete *prevIt;
                 snakes_.erase (prevIt);
             };
@@ -143,8 +143,7 @@ namespace gameModel {
         hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
 
         for (auto elem : hum->body_)
-            available_.erase (std::remove_if (available_.begin (), available_.end (), [this, &elem] (auto i) { return i == indexFromPair (elem); }),
-                              available_.end ());
+            available_.erase (indexFromPair (elem));
 
         hum->setButtons ();
         snakes_.push_back (hum);
@@ -159,8 +158,7 @@ namespace gameModel {
         snakes_.push_back (bot);
 
         for (auto elem : bot->body_)
-            available_.erase (std::remove_if (available_.begin (), available_.end (), [this, &elem] (auto i) { return i == indexFromPair (elem); }),
-                              available_.end ());
+            available_.erase (indexFromPair (elem));
 
         bot->setModel (this);
     }
@@ -181,27 +179,25 @@ namespace gameModel {
         }
 
         s.body_.push_front (newHead);
-        available_.erase (std::remove_if (available_.begin (), available_.end (), [this, newHead] (auto i) { return i == indexFromPair (newHead); }),
-                          available_.end ());
+        available_.erase (indexFromPair (newHead));
 
         for (auto curIt = rabbits_.begin (), endIt = rabbits_.end (); curIt != endIt; ++curIt) {
             if ((*curIt) == newHead) {
-                available_.push_back (indexFromPair (*curIt));
+                available_.insert (indexFromPair (*curIt));
                 rabbits_.erase (curIt);
 
                 neSiel = false;
-                if (nRabbits_ <= available_.size ()) {
+                if (static_cast <unsigned>(nRabbits_) <= available_.size ()) {
                     rabbits_.push_back (getNewRandomPair ());
                     auto last = rabbits_.back ();
-                    available_.erase (std::remove_if (available_.begin (), available_.end (), [this, last] (auto i) { return i == indexFromPair (last); }),
-                                    available_.end ());
+                    available_.erase (indexFromPair (last));
                 }
                 break;
             }
         }
 
         if (neSiel) {
-            available_.push_back (indexFromPair (s.body_.back ()));
+            available_.insert (indexFromPair (s.body_.back ()));
             s.body_.pop_back ();
         }
     }

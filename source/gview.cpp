@@ -158,13 +158,12 @@ namespace graphicInterface {
 
         window_.draw (frameIn);
 
-        // TODO: play music
-        //  sf::Music music;
-        //  if (!music.openFromFile("../sprites/VIKA.wav"))
-        //      throw std::invalid_argument ("music doesn't open");
+         sf::Music music;
+         if (!music.openFromFile("../sprites/VIKA.wav"))
+             throw std::invalid_argument ("music doesn't open");
 
-        // music.setLoop (true);
-        // music.play ();
+        music.setLoop (true);
+        music.play ();
 
         sf::Text text ("POINTS:", font_, 40);
         text.setOrigin (

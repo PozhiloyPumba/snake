@@ -8,9 +8,8 @@ namespace graphicInterface {
     {
         if (!font_.loadFromFile ("../sprites/ComicSansMS.ttf"))
             throw std::invalid_argument ("../sprites/ComicSansMS.ttf doesn't open");
-        
+
         loadTexture (freshMeat_, "../sprites/freshMeat.png");
-        virtSize_ = {X_SCREEN_SIZE / ceilSize_, Y_SCREEN_SIZE / ceilSize_};
 
         for (int i = 0; i < 2; ++i) {
             sf::Texture pacman;
@@ -23,6 +22,10 @@ namespace graphicInterface {
             loadTexture (tail, "../sprites/tail" + std::to_string (i) + ".png");
             tail_.push_back (tail);
         }
+        window_.create (sf::VideoMode (X_SCREEN_SIZE, Y_SCREEN_SIZE), "Snake memes");
+        const sf::Vector2u size = window_.getSize ();
+        virtSize_ = {size.x / ceilSize_, size.y / ceilSize_};
+        window_.setVerticalSyncEnabled (true);
     }
 
     void GView::loadTexture (sf::Texture &dest, const std::string &fileName)
@@ -36,16 +39,16 @@ namespace graphicInterface {
     void GView::setTextureInSprite (const sf::Texture &texture)
     {
         spr_.setTexture (texture);
-        sf::Vector2f targetSize(ceilSize_, ceilSize_);
+        sf::Vector2f targetSize (ceilSize_, ceilSize_);
 
-        spr_.setScale(
-            targetSize.x / spr_.getLocalBounds().width,
-            targetSize.y / spr_.getLocalBounds().height);
-         
-        spr_.setOrigin(
-            spr_.getLocalBounds().width/2.0f, 
-            spr_.getLocalBounds().height/2.0f);
-        
+        spr_.setScale (
+            targetSize.x / spr_.getLocalBounds ().width,
+            targetSize.y / spr_.getLocalBounds ().height);
+
+        spr_.setOrigin (
+            spr_.getLocalBounds ().width / 2.0f,
+            spr_.getLocalBounds ().height / 2.0f);
+
         spr_.setRotation (0);
     }
 
@@ -113,18 +116,17 @@ namespace graphicInterface {
     {
         using namespace std::chrono_literals;
         auto globalStart = std::chrono::steady_clock::now ();
-        
+
         while (window_.isOpen () && std::chrono::steady_clock::now () < globalStart + 3000ms) {
             sf::Event event;
             while (window_.pollEvent (event))
                 closeAndResizeHelper (event);
 
             auto timer = [&] (auto time) {
-                sf::Text text (time, font_, 150);
+                sf::Text text (time, font_, 100);
                 text.setOrigin (
-                    text.getLocalBounds().width/2.0f, 
-                    text.getLocalBounds().height/2.0f
-                );
+                    text.getLocalBounds ().width / 2.0f,
+                    text.getLocalBounds ().height / 2.0f);
 
                 text.setFillColor (sf::Color::Green);
                 text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
@@ -156,23 +158,23 @@ namespace graphicInterface {
 
         window_.draw (frameIn);
 
-        sf::Music music;
-        if (!music.openFromFile("../sprites/VIKA.wav"))
-            throw std::invalid_argument ("music doesn't open");
-        
-        music.setLoop (true);
-        music.play ();
+        // TODO: play music
+        //  sf::Music music;
+        //  if (!music.openFromFile("../sprites/VIKA.wav"))
+        //      throw std::invalid_argument ("music doesn't open");
+
+        // music.setLoop (true);
+        // music.play ();
 
         sf::Text text ("POINTS:", font_, 40);
         text.setOrigin (
-            text.getLocalBounds().width/2.0f, 
-            text.getLocalBounds().height/2.0f
-        );
+            text.getLocalBounds ().width / 2.0f,
+            text.getLocalBounds ().height / 2.0f);
 
         text.setFillColor (sf::Color::Green);
         text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - 210);
         window_.draw (text);
-        
+
         writeScoreTable ();
 
         window_.display ();
@@ -215,10 +217,10 @@ namespace graphicInterface {
         window_.draw (frameIn);
     }
 
-    void GView::paint (const std::pair<unsigned short, unsigned short> &rabbit) //TODO: it needs in some moving
+    void GView::paint (const std::pair<int, int> &rabbit)  // TODO: it needs in some moving
     {
         setTextureInSprite (freshMeat_);
-        spr_.setPosition ((rabbit.first + 0.5) * ceilSize_, (rabbit.second + 0.5) * ceilSize_  + 1);
+        spr_.setPosition ((rabbit.first + 0.5) * ceilSize_, (rabbit.second + 0.5) * ceilSize_ + 1);
 
         window_.draw (spr_);
     }
@@ -228,19 +230,18 @@ namespace graphicInterface {
         setTextureInSprite (head_[chapterOfCycle_]);
 
         switch (snake.direction_) {
-            case Control::Snake::dir::UP:   spr_.setRotation (90);  break;
+            case Control::Snake::dir::UP: spr_.setRotation (90); break;
             case Control::Snake::dir::DOWN: spr_.setRotation (-90); break;
-            case Control::Snake::dir::LEFT: spr_.setRotation (0);   break;
-            case Control::Snake::dir::RIGHT:spr_.setRotation (180); break;
+            case Control::Snake::dir::LEFT: spr_.setRotation (0); break;
+            case Control::Snake::dir::RIGHT: spr_.setRotation (180); break;
         }
         auto headPosition = *(snake.body_.begin ());
         spr_.setPosition ((headPosition.first + 0.5) * ceilSize_, (headPosition.second + 0.5) * ceilSize_);
 
         window_.draw (spr_);
-        
+
         int i = 0;
         for (auto curIt = ++snake.body_.begin (), endIt = snake.body_.end (); curIt != endIt; ++curIt) {
-            
             setTextureInSprite (tail_[++i % 4]);
             spr_.setPosition ((curIt->first + 0.5) * ceilSize_, (curIt->second + 0.5) * ceilSize_);
 
@@ -248,29 +249,22 @@ namespace graphicInterface {
         }
     }
 
-    void GView::write (const std::pair <std::string, size_t> &line)
+    void GView::write (const std::pair<std::string, size_t> &line)
     {
         sf::Text text ("", font_);
         text.setFillColor (sf::Color::Magenta);
 
         text.setString (std::to_string (++alreadyWriten_) + ". " + line.first + "\t" + std::to_string (line.second));
         text.setOrigin (
-            text.getLocalBounds().width/2.0f, 
-            text.getLocalBounds().height/2.0f
-        );
+            text.getLocalBounds ().width / 2.0f,
+            text.getLocalBounds ().height / 2.0f);
 
         text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - 200 + alreadyWriten_ * 30);
         window_.draw (text);
     }
 
-    void GView::run ()  //TODO: refactor
+    void GView::run ()
     {
-        window_.create (sf::VideoMode (X_SCREEN_SIZE, Y_SCREEN_SIZE), "Snake memes");
-
-        const sf::Vector2u size = window_.getSize ();
-        virtSize_ = {size.x / ceilSize_, size.y / ceilSize_};
-        window_.setVerticalSyncEnabled (true);
-        
         using namespace std::chrono_literals;
 
         startScreen ();

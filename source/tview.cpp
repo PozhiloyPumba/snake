@@ -5,7 +5,7 @@ namespace graphicInterface {
     void sigintHandler (int sigN)
     {
         if (sigN != SIGINT)
-            throw std::invalid_argument ("strange signal " + sigN);
+            return;
 
         TView::interruptHandler ();
     }
@@ -13,7 +13,7 @@ namespace graphicInterface {
     void sigChangeTermSizeHandler (int sigN)
     {
         if (sigN != SIGWINCH)
-            throw std::invalid_argument ("strange signal " + sigN);
+            return;
 
         TView::changeTermSizeHandler ();
     }
@@ -46,22 +46,22 @@ namespace graphicInterface {
         tcsetattr (0, TCSANOW, &old_);
     }
 
-    void TView::drawHLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const
+    void TView::drawHLine (int xBeg, int yBeg, int length) const
     {
         xBeg = xBeg * 2 + 1;
         ++yBeg;
 
         printf ("\e[%d;%dH", yBeg, xBeg);
-        for (short i = 0; i < length; ++i)
+        for (int i = 0; i < length; ++i)
             printf ("%c%c", sym_.first, sym_.second);
     }
 
-    void TView::drawVLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const
+    void TView::drawVLine (int xBeg, int yBeg, int length) const
     {
         xBeg = xBeg * 2 + 1;
         ++yBeg;
 
-        for (short i = 0; i < length; ++i) {
+        for (int i = 0; i < length; ++i) {
             printf ("\e[%d;%dH", yBeg++, xBeg);
             printf ("%c%c", sym_.first, sym_.second);
         }
@@ -85,7 +85,7 @@ namespace graphicInterface {
         fflush (stdout);
     }
 
-    void TView::paint (const std::pair<unsigned short, unsigned short> &rabbit)
+    void TView::paint (const std::pair<int, int> &rabbit)
     {
         setColor (black_, lightGrey_);
         sym_ = {' ', ' '};

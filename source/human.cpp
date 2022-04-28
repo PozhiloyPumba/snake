@@ -13,15 +13,8 @@ namespace Control {
         if (buttons.size () != 4)
             throw std::logic_error ("you choose the wrong quantity of buttons");
 
-        auto v = graphicInterface::View::get ();
-
-        dir e = dir::UP;
-
-        for (auto curIt = buttons.begin (), endIt = buttons.end (); curIt != endIt; ++curIt) {
-            v->addButton (*curIt, std::bind (&Human::buttonHandler, this, e));
-            e = static_cast<dir> (static_cast<std::underlying_type<dir>::type> (e) + 1);
+        for (auto curIt = buttons.begin (), endIt = buttons.end (); curIt != endIt; ++curIt)
             buttons_.push_back (*curIt);
-        }
     }
 
     Human::Human (const std::initializer_list<std::string> &buttons) : Snake (controlType::HUMAN)
@@ -50,6 +43,18 @@ namespace Control {
             v->eraseButton (but);
     }
 
+    void Human::setButtons ()
+    {
+        auto v = graphicInterface::View::get ();
+
+        dir e = dir::UP;
+
+        for (auto curIt = buttons_.begin (), endIt = buttons_.end (); curIt != endIt; ++curIt) {
+            v->addButton (*curIt, std::bind (&Human::buttonHandler, this, e));
+            e = static_cast<dir> (static_cast<std::underlying_type<dir>::type> (e) + 1);
+        }
+    }
+
     StupidBot::StupidBot () : Snake (controlType::BOT)
     {
         name_ = "StupidBot" + std::to_string (++numberOfStupidBots_);
@@ -57,6 +62,6 @@ namespace Control {
 
     void StupidBot::step ()  // TODO: make it some smarter)))
     {
-        static int a = 0;
+        // static int a = 0;
     }
 }  // namespace Control

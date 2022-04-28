@@ -28,14 +28,14 @@ namespace graphicInterface {
         std::pair<char, char> sym_{' ', ' '};
 
         struct winsize termSize_ = {0, 0, 0, 0};
-        std::pair<unsigned short, unsigned short> virtSize_ = {0, 0};
+        std::pair<int, int> virtSize_ = {0, 0};
 
         std::unordered_map<std::string, std::function<void ()>> buttonTable_;
 
         inline void setColor (unsigned char colorFront, unsigned char colorBack) const { printf ("\e[48;5;%dm\e[38;5;%dm", colorBack, colorFront); }
         inline void resetColor () const { printf ("\e[m\e[1;1H"); }
-        void drawHLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
-        void drawVLine (unsigned short xBeg, unsigned short yBeg, unsigned short length) const;  // numerate from 0
+        void drawHLine (int xBeg, int yBeg, int length) const;  // numerate from 0
+        void drawVLine (int xBeg, int yBeg, int length) const;  // numerate from 0
         void buttonHandler ();
 
     public:
@@ -47,10 +47,10 @@ namespace graphicInterface {
 
         void endHandler () override;
 
-        std::pair<unsigned short, unsigned short> getTermSize () const override { return virtSize_; }
-        void paint (const std::pair<unsigned short, unsigned short> &rabbit) override;
+        std::pair<int, int> getTermSize () const override { return virtSize_; }
+        void paint (const std::pair<int, int> &rabbit) override;
         void paint (const Control::Snake &snake) override;
-        void write (const std::pair <std::string, size_t> &line) override {}    //TODO:
+        void write (const std::pair<std::string, size_t> &line) override {}  // TODO:
         void drawFrame () override;
 
         void addButton (const std::string &button, const std::function<void ()> &handler) override { buttonTable_.insert ({button, handler}); }

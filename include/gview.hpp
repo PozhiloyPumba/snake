@@ -13,7 +13,7 @@ namespace graphicInterface {
 
     class GView final : public View {
     private:
-        const unsigned ceilSize_ = 20;
+        const int ceilSize_ = 25;
         bool end_ = false;
         int chapterOfCycle_ = 1;
         int alreadyWriten_ = 0;
@@ -27,7 +27,7 @@ namespace graphicInterface {
 
         std::unordered_map<sf::Keyboard::Key, std::function<void ()>> buttonTable_;
         sf::Keyboard::Key fromStringtoKey (const std::string &button);
-        std::pair<unsigned short, unsigned short> virtSize_ = {0, 0};
+        std::pair<int, int> virtSize_;
 
         void loadTexture (sf::Texture &dest, const std::string &fileName);
         void setTextureInSprite (const sf::Texture &texture);
@@ -42,10 +42,10 @@ namespace graphicInterface {
 
         void run () override;
 
-        std::pair<unsigned short, unsigned short> getTermSize () const override { return virtSize_; }
-        void paint (const std::pair<unsigned short, unsigned short> &rabbit) override;
+        std::pair<int, int> getTermSize () const override { return virtSize_; }
+        void paint (const std::pair<int, int> &rabbit) override;
         void paint (const Control::Snake &snake) override;
-        void write (const std::pair <std::string, size_t> &line) override;
+        void write (const std::pair<std::string, size_t> &line) override;
         void drawFrame () override;
         void endHandler () override {}
 

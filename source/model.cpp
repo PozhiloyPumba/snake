@@ -2,6 +2,10 @@
 
 #include <unistd.h>
 
+#include <algorithm>
+#include <iostream>
+#include <iterator>
+
 #include "view.hpp"
 
 namespace gameModel {
@@ -14,29 +18,57 @@ namespace gameModel {
         v->botsHandler = std::bind (&Game::botsHandler, this);
         v->writeScoreTable = std::bind (&Game::drawScore, this);
 
-        for (int i = 0; i < nRabbits_; ++i)
+        auto size = v->getTermSize ();
+        auto fieldSize = (size.first - 2) * (size.second - 2);
+
+        std::generate_n (
+            std::back_insert_iterator (available_),
+            fieldSize - 1,
+            [n = 0] () mutable { return ++n; });
+
+        for (int i = 0; i < nRabbits_; ++i) {
+            if (nRabbits_ > available_.size ())
+                break;
             rabbits_.push_back (getNewRandomPair ());
+            auto last = rabbits_.back ();
+            available_.erase (std::remove_if (available_.begin (), available_.end (), [this, last] (auto i) { return i == indexFromPair (last); }),
+                              available_.end ());
+        }
     }
 
-    coord_t Game::getNewRandomPair ()  // TODO: fix spawn in snake
+    coord_t Game::getNewRandomPair ()
+    {
+        std::uniform_int_distribution<int> rand (0, available_.size () - 1);
+        auto rnd = rand (generator_);
+        return pairFromIndex (available_[rnd]);
+    }
+
+    int Game::indexFromPair (const coord_t &pair)
     {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
 
-        std::uniform_int_distribution<unsigned short> randFirst (1, termSize.first - 2);
-        std::uniform_int_distribution<unsigned short> randSecond (1, termSize.second - 2);
-
-        return {randFirst (generator_), randSecond (generator_)};
+        return (pair.second - 1) * (termSize.first - 2) + pair.first - 1;
     }
 
-    void Game::drawScore ()
+    coord_t Game::pairFromIndex (int index)
+    {
+        auto termSize = graphicInterface::View::get ()->getTermSize ();
+
+        int x = index % (termSize.first - 2) + 1;
+        int y = (index - x + 1) / (termSize.first - 2) + 1;
+
+        return {x, y};
+    }
+
+    void Game::drawScore () const
     {
         auto v = graphicInterface::View::get ();
 
-        for (auto line: tableScore_)
+        for (auto line : tableScore_)
             v->write (line);
     }
 
-    void Game::drawAll ()
+    void Game::drawAll () const
     {
         auto v = graphicInterface::View::get ();
         v->drawFrame ();
@@ -58,18 +90,23 @@ namespace gameModel {
 
             auto head = (*prevIt)->body_.front ();
 
-            if (head.first <= 0 || head.first >= termSize.first - 1) {  // x-crash
+            auto deletingSnake = [this, &prevIt] () {
                 (*prevIt)->clearCache ();
-                tableScore_.insert({(*prevIt)->name_, (*prevIt)->getLength ()});
+                tableScore_.insert ({(*prevIt)->name_, (*prevIt)->getLength ()});
+                for (auto elem : (*prevIt)->body_)
+                    available_.push_back (indexFromPair (elem));
                 delete *prevIt;
                 snakes_.erase (prevIt);
+            };
+
+            if (head.first <= 0 || head.first >= termSize.first - 1) {  // x-crash
+                (*prevIt)->body_.pop_front ();
+                deletingSnake ();
                 continue;
             }
             if (head.second <= 0 || head.second >= termSize.second - 1) {  // y-crash
-                (*prevIt)->clearCache ();
-                tableScore_.insert({(*prevIt)->name_, (*prevIt)->getLength ()});
-                delete *prevIt;
-                snakes_.erase (prevIt);
+                (*prevIt)->body_.pop_front ();
+                deletingSnake ();
                 continue;
             }
 
@@ -90,10 +127,7 @@ namespace gameModel {
                         }
                 }
                 if (crash) {
-                    (*prevIt)->clearCache ();
-                    tableScore_.insert({(*prevIt)->name_, (*prevIt)->getLength ()});
-                    delete *prevIt;
-                    snakes_.erase (prevIt);
+                    deletingSnake ();
                     break;
                 }
             }
@@ -102,22 +136,31 @@ namespace gameModel {
         return false;
     }
 
-    void Game::addGamer (Control::Human &ctrl)
+    void Game::addGamer (const Control::Human &ctrl)
     {
         auto v = graphicInterface::View::get ()->getTermSize ();
         auto *hum = new Control::Human (ctrl);
-        hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size ()) % v.second});
+        hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
 
+        for (auto elem : hum->body_)
+            available_.erase (std::remove_if (available_.begin (), available_.end (), [this, &elem] (auto i) { return i == indexFromPair (elem); }),
+                              available_.end ());
+
+        hum->setButtons ();
         snakes_.push_back (hum);
     }
 
-    void Game::addGamer (Control::StupidBot &ctrl)
+    void Game::addGamer (const Control::StupidBot &ctrl)
     {
         auto v = graphicInterface::View::get ()->getTermSize ();
         auto *bot = new Control::StupidBot (ctrl);
-        bot->setSnake ({v.first / 5, (v.second / 2 + snakes_.size ()) % v.second});
 
+        bot->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
         snakes_.push_back (bot);
+
+        for (auto elem : bot->body_)
+            available_.erase (std::remove_if (available_.begin (), available_.end (), [this, &elem] (auto i) { return i == indexFromPair (elem); }),
+                              available_.end ());
 
         bot->setModel (this);
     }
@@ -138,18 +181,29 @@ namespace gameModel {
         }
 
         s.body_.push_front (newHead);
+        available_.erase (std::remove_if (available_.begin (), available_.end (), [this, newHead] (auto i) { return i == indexFromPair (newHead); }),
+                          available_.end ());
 
         for (auto curIt = rabbits_.begin (), endIt = rabbits_.end (); curIt != endIt; ++curIt) {
             if ((*curIt) == newHead) {
+                available_.push_back (indexFromPair (*curIt));
                 rabbits_.erase (curIt);
+
                 neSiel = false;
-                rabbits_.push_back (getNewRandomPair ());
+                if (nRabbits_ <= available_.size ()) {
+                    rabbits_.push_back (getNewRandomPair ());
+                    auto last = rabbits_.back ();
+                    available_.erase (std::remove_if (available_.begin (), available_.end (), [this, last] (auto i) { return i == indexFromPair (last); }),
+                                    available_.end ());
+                }
                 break;
             }
         }
 
-        if (neSiel)
+        if (neSiel) {
+            available_.push_back (indexFromPair (s.body_.back ()));
             s.body_.pop_back ();
+        }
     }
 
     void Game::botsHandler ()

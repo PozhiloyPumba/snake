@@ -11,7 +11,7 @@ namespace gameModel {
 }
 
 namespace Control {
-    using coord_t = std::pair<unsigned short, unsigned short>;
+    using coord_t = std::pair<int, int>;
 
     struct Snake {
         enum class controlType {
@@ -27,7 +27,7 @@ namespace Control {
         };
 
         std::list<coord_t> body_;
-        dir prevDir_ = dir::RIGHT;   // it is for fix rotate to itself
+        dir prevDir_ = dir::RIGHT;  // it is for fix rotate to itself
         dir direction_ = dir::RIGHT;
         controlType whoami;
         std::string name_;
@@ -35,10 +35,12 @@ namespace Control {
         void setSnake (const coord_t &begin)
         {
             for (int i = 0; i < 4; ++i)
-                body_.push_back ({begin.first - i, begin.second});
+                if (begin.first - i > 0)
+                    body_.push_back ({begin.first - i, begin.second});
         }
 
-        size_t getLength () const {
+        size_t getLength () const
+        {
             return body_.size ();
         }
 
@@ -78,9 +80,12 @@ namespace Control {
         Human (const std::initializer_list<std::string> &buttons);
         Human (const std::string &defaultVariant);
 
-        void setName (const std::string &name) {
+        inline void setName (const std::string &name)
+        {
             name_ = name;
         }
+
+        void setButtons ();
 
         void clearCache () override;
 

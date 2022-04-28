@@ -15,11 +15,11 @@ int main (int argc, char *argv[])
 
     model.addGamer (h1);
     model.addGamer (h2);
-    
-    for (int i = 0; i < 2; ++i) {
-        Control::StupidBot bot;
-        model.addGamer (bot);
-    }
+
+    // for (int i = 0; i < 2; ++i) {
+    //     Control::StupidBot bot;
+    //     model.addGamer (bot);
+    // }
 
     screen->run ();
 

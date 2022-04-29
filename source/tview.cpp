@@ -63,6 +63,42 @@ namespace graphicInterface {
         }
     }
 
+    void TView::drawBigDigit (std::integral_constant<int, 1>)
+    {
+        setColor (black_, green_);
+        sym_ = {' ', ' '};
+        drawVLine (virtSize_.first / 2, virtSize_.second / 2 - 2, 5);
+        drawHLine (virtSize_.first / 2 - 1, virtSize_.second / 2 + 2, 3);
+        drawHLine (virtSize_.first / 2 - 1, virtSize_.second / 2 - 1, 1);
+        resetColor ();
+        fflush (stdout);
+    }
+    
+    void TView::drawBigDigit (std::integral_constant<int, 2>)
+    {
+        setColor (black_, green_);
+        sym_ = {' ', ' '};
+        drawHLine (virtSize_.first / 2 - 1, virtSize_.second / 2 - 2, 3);
+        drawHLine (virtSize_.first / 2 - 1, virtSize_.second / 2 + 2, 3);
+        drawHLine (virtSize_.first / 2, virtSize_.second / 2, 1);
+        drawHLine (virtSize_.first / 2 + 1, virtSize_.second / 2 - 1, 1);
+        drawHLine (virtSize_.first / 2 - 1, virtSize_.second / 2 + 1, 1);
+        resetColor ();
+        fflush (stdout);
+    }
+
+    void TView::drawBigDigit (std::integral_constant<int, 3>)
+    {
+        setColor (black_, green_);
+        sym_ = {' ', ' '};
+        drawHLine (virtSize_.first / 2 - 1, virtSize_.second / 2 - 2, 3);
+        drawHLine (virtSize_.first / 2 - 1, virtSize_.second / 2 + 2, 3);
+        drawHLine (virtSize_.first / 2 - 1, virtSize_.second / 2, 3);
+        drawVLine (virtSize_.first / 2 + 1, virtSize_.second / 2 - 2, 5);
+        resetColor ();
+        fflush (stdout);
+    }
+    
     void TView::startScreen ()
     {
         using namespace std::chrono_literals;
@@ -72,19 +108,14 @@ namespace graphicInterface {
             drawFrame ();
             if (std::chrono::steady_clock::now () < globalStart + 1000ms) {
                 drawBigDigit (std::integral_constant <int, 3>{});
-                fflush (stdout);
-                usleep (200);
-                continue;
             }
-            if (std::chrono::steady_clock::now () < globalStart + 2000ms) {
+            else if (std::chrono::steady_clock::now () < globalStart + 2000ms) {
                 drawBigDigit (std::integral_constant <int, 2>{});
-                fflush (stdout);
-                usleep (200);
-                continue;
             }
-            drawBigDigit (std::integral_constant <int, 1>{});
-            fflush (stdout);
-            usleep (200);
+            else {
+                drawBigDigit (std::integral_constant <int, 1>{});
+            }
+            usleep (200000);
         }
     }
 

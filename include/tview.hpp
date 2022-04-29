@@ -39,9 +39,9 @@ namespace graphicInterface {
         void drawVLine (int xBeg, int yBeg, int length) const;  // numerate from 0
         void buttonHandler ();
         void startScreen ();
-        void drawBigDigit (std::integral_constant<int, 1>) {setColor (black_, purple_); drawVLine (10, 10, 1); resetColor ();}  //TODO:
-        void drawBigDigit (std::integral_constant<int, 2>) {setColor (black_, purple_); drawVLine (20, 20, 1); resetColor ();}
-        void drawBigDigit (std::integral_constant<int, 3>) {setColor (black_, purple_); drawVLine (30, 30, 1); resetColor ();}
+        void drawBigDigit (std::integral_constant<int, 1>);
+        void drawBigDigit (std::integral_constant<int, 2>);
+        void drawBigDigit (std::integral_constant<int, 3>);
 
     public:
         TView ();

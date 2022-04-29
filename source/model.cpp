@@ -64,8 +64,7 @@ namespace gameModel {
     {
         auto v = graphicInterface::View::get ();
 
-        for (auto line : tableScore_)
-            v->write (line);
+        std::for_each (tableScore_.begin (), tableScore_.end (), [v] (auto line) { v->write (line);});
     }
 
     void Game::drawAll () const
@@ -73,11 +72,8 @@ namespace gameModel {
         auto v = graphicInterface::View::get ();
         v->drawFrame ();
 
-        for (auto r : rabbits_)
-            v->paint (r);
-
-        for (auto s : snakes_)
-            v->paint (*s);
+        std::for_each (rabbits_.begin (), rabbits_.end (), [v] (auto r) { v->paint (r);});
+        std::for_each (snakes_.begin (), snakes_.end (), [v] (auto s) { v->paint (*s);});
     }
 
     bool Game::checkSnakeCrash ()
@@ -90,7 +86,7 @@ namespace gameModel {
 
             auto head = (*prevIt)->body_.front ();
 
-            auto deletingSnake = [this, &prevIt] (auto correctionFactor ) {
+            auto deletingSnake = [this, &prevIt] (auto correctionFactor) {
                 (*prevIt)->clearCache ();
                 tableScore_.insert ({(*prevIt)->name_, (*prevIt)->getLength () + correctionFactor});
                 for (auto elem : (*prevIt)->body_)
@@ -100,7 +96,6 @@ namespace gameModel {
             };
 
             if (head.first <= 0 || head.first >= termSize.first - 1) {  // x-crash
-                
                 (*prevIt)->body_.pop_front ();
                 deletingSnake (1);
                 continue;
@@ -143,8 +138,7 @@ namespace gameModel {
         auto *hum = new Control::Human (ctrl);
         hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
 
-        for (auto elem : hum->body_)
-            available_.erase (indexFromPair (elem));
+        std::for_each (hum->body_.begin (), hum->body_.end (), [this] (auto forErase) {available_.erase (indexFromPair (forErase));});
 
         hum->setButtons ();
         snakes_.push_back (hum);
@@ -158,8 +152,7 @@ namespace gameModel {
         bot->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
         snakes_.push_back (bot);
 
-        for (auto elem : bot->body_)
-            available_.erase (indexFromPair (elem));
+        std::for_each (bot->body_.begin (), bot->body_.end (), [this] (auto forErase) {available_.erase (indexFromPair (forErase));});
 
         bot->setModel (this);
     }

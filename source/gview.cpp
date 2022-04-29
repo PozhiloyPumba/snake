@@ -22,6 +22,7 @@ namespace graphicInterface {
             loadTexture (tail, "../sprites/tail" + std::to_string (i) + ".png");
             tail_.push_back (tail);
         }
+
         window_.create (sf::VideoMode (X_SCREEN_SIZE, Y_SCREEN_SIZE), "Snake memes");
         const sf::Vector2u size = window_.getSize ();
         virtSize_ = {size.x / ceilSize_, size.y / ceilSize_};
@@ -116,25 +117,25 @@ namespace graphicInterface {
     {
         using namespace std::chrono_literals;
         auto globalStart = std::chrono::steady_clock::now ();
+        
+        auto timer = [&] (auto time) {
+            sf::Text text (time, font_, 100);
+            text.setOrigin (
+                text.getLocalBounds ().width / 2.0f,
+                text.getLocalBounds ().height / 2.0f);
+
+            text.setFillColor (sf::Color::Green);
+            text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
+            window_.clear ();
+            drawFrame ();
+            window_.draw (text);
+            window_.display ();
+        };
 
         while (window_.isOpen () && std::chrono::steady_clock::now () < globalStart + 3000ms) {
             sf::Event event;
             while (window_.pollEvent (event))
                 closeAndResizeHelper (event);
-
-            auto timer = [&] (auto time) {
-                sf::Text text (time, font_, 100);
-                text.setOrigin (
-                    text.getLocalBounds ().width / 2.0f,
-                    text.getLocalBounds ().height / 2.0f);
-
-                text.setFillColor (sf::Color::Green);
-                text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y);
-                window_.clear ();
-                drawFrame ();
-                window_.draw (text);
-                window_.display ();
-            };
 
             if (std::chrono::steady_clock::now () < globalStart + 1000ms) {
                 timer ("3");

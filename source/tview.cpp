@@ -36,10 +36,6 @@ namespace graphicInterface {
         signal (SIGWINCH, &graphicInterface::sigChangeTermSizeHandler);
     }
 
-    TView::~TView ()
-    {
-    }
-
     void TView::endHandler ()
     {
         end_ = true;
@@ -64,6 +60,31 @@ namespace graphicInterface {
         for (int i = 0; i < length; ++i) {
             printf ("\e[%d;%dH", yBeg++, xBeg);
             printf ("%c%c", sym_.first, sym_.second);
+        }
+    }
+
+    void TView::startScreen ()
+    {
+        using namespace std::chrono_literals;
+        auto globalStart = std::chrono::steady_clock::now ();
+
+        while (std::chrono::steady_clock::now () < globalStart + 3000ms) {
+            drawFrame ();
+            if (std::chrono::steady_clock::now () < globalStart + 1000ms) {
+                drawBigDigit (std::integral_constant <int, 3>{});
+                fflush (stdout);
+                usleep (200);
+                continue;
+            }
+            if (std::chrono::steady_clock::now () < globalStart + 2000ms) {
+                drawBigDigit (std::integral_constant <int, 2>{});
+                fflush (stdout);
+                usleep (200);
+                continue;
+            }
+            drawBigDigit (std::integral_constant <int, 1>{});
+            fflush (stdout);
+            usleep (200);
         }
     }
 
@@ -164,7 +185,7 @@ namespace graphicInterface {
 
     void TView::run ()
     {
-        drawFrame ();
+        startScreen ();
         int result;
         while (!end_) {
             buttonHandler ();
@@ -181,9 +202,8 @@ namespace graphicInterface {
 
         printf ("\e[1;1H\e[J");  // clearing window
         // TODO: normal quit
-        if (result == 1)
+        if (result == 1) {
             printf ("Game Over\n");
-        else if (result == 2)
-            printf ("Winner\n");
+        }
     }
 }  // namespace graphicInterface

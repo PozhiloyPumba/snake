@@ -27,7 +27,7 @@ namespace gameModel {
             [n = 0] () mutable { return ++n; });
 
         for (int i = 0; i < nRabbits_; ++i) {
-            if (static_cast <unsigned> (nRabbits_) > available_.size ())
+            if (!available_.size ())
                 break;
             rabbits_.push_back (getNewRandomPair ());
             auto last = rabbits_.back ();
@@ -90,9 +90,9 @@ namespace gameModel {
 
             auto head = (*prevIt)->body_.front ();
 
-            auto deletingSnake = [this, &prevIt] () {
+            auto deletingSnake = [this, &prevIt] (auto correctionFactor ) {
                 (*prevIt)->clearCache ();
-                tableScore_.insert ({(*prevIt)->name_, (*prevIt)->getLength ()});
+                tableScore_.insert ({(*prevIt)->name_, (*prevIt)->getLength () + correctionFactor});
                 for (auto elem : (*prevIt)->body_)
                     available_.insert (indexFromPair (elem));
                 delete *prevIt;
@@ -100,13 +100,14 @@ namespace gameModel {
             };
 
             if (head.first <= 0 || head.first >= termSize.first - 1) {  // x-crash
+                
                 (*prevIt)->body_.pop_front ();
-                deletingSnake ();
+                deletingSnake (1);
                 continue;
             }
             if (head.second <= 0 || head.second >= termSize.second - 1) {  // y-crash
                 (*prevIt)->body_.pop_front ();
-                deletingSnake ();
+                deletingSnake (1);
                 continue;
             }
 
@@ -127,7 +128,7 @@ namespace gameModel {
                         }
                 }
                 if (crash) {
-                    deletingSnake ();
+                    deletingSnake (0);
                     break;
                 }
             }
@@ -183,11 +184,10 @@ namespace gameModel {
 
         for (auto curIt = rabbits_.begin (), endIt = rabbits_.end (); curIt != endIt; ++curIt) {
             if ((*curIt) == newHead) {
-                available_.insert (indexFromPair (*curIt));
                 rabbits_.erase (curIt);
 
                 neSiel = false;
-                if (static_cast <unsigned>(nRabbits_) <= available_.size ()) {
+                if (available_.size ()) {
                     rabbits_.push_back (getNewRandomPair ());
                     auto last = rabbits_.back ();
                     available_.erase (indexFromPair (last));

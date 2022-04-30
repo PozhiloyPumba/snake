@@ -111,6 +111,7 @@ namespace graphicInterface {
     {
         using namespace std::chrono_literals;
         auto globalStart = std::chrono::steady_clock::now ();
+        struct pollfd in = {0, POLL_IN, 0};
 
         while (!end_ && std::chrono::steady_clock::now () < globalStart + 3000ms) {
             drawFrame ();
@@ -123,7 +124,15 @@ namespace graphicInterface {
             else {
                 drawBigDigit (std::integral_constant <int, 1>{});
             }
-            usleep (200000);
+
+            if (poll (&in, 1, 200) == 1) {
+                unsigned char c;
+                read (0, &c, 1);
+                if (c == 'q') {
+                    endHandler ();
+                    break;
+                }
+            }
         }
     }
 

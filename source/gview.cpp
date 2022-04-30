@@ -72,7 +72,7 @@ namespace graphicInterface {
             case 'N': return sf::Keyboard::N;
             case 'O': return sf::Keyboard::O;
             case 'P': return sf::Keyboard::P;
-            case 'Q': return sf::Keyboard::Q;
+            // case 'Q': return sf::Keyboard::Q;    q for quit
             case 'R': return sf::Keyboard::R;
             case 'S': return sf::Keyboard::S;
             case 'T': return sf::Keyboard::T;
@@ -200,7 +200,7 @@ namespace graphicInterface {
 
     void GView::closeAndResizeHelper (const sf::Event &event)
     {
-        if (event.type == sf::Event::Closed)
+        if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Q))
             window_.close ();
         if (event.type == sf::Event::Resized) {
             virtSize_ = {event.size.width / ceilSize_, event.size.height / ceilSize_};

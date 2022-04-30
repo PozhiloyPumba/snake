@@ -281,6 +281,7 @@ namespace graphicInterface {
             endScreen ();
         }
 
+        printf ("\e[1;1H\e[J"); // control clearing window
         tcsetattr (0, TCSANOW, &old_);
     }
 }  // namespace graphicInterface

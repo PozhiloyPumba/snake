@@ -14,7 +14,7 @@ namespace graphicInterface {
     {
         if (sigN != SIGWINCH)
             return;
-
+        
         TView::changeTermSizeHandler ();
     }
 
@@ -32,14 +32,21 @@ namespace graphicInterface {
 
         interruptHandler = std::bind (&TView::endHandler, this);
         signal (SIGINT, &graphicInterface::sigintHandler);
-        changeTermSizeHandler = std::bind (&TView::drawFrame, this);
+        changeTermSizeHandler = std::bind (&TView::resizer, this);
         signal (SIGWINCH, &graphicInterface::sigChangeTermSizeHandler);
     }
 
     void TView::endHandler ()
     {
         end_ = true;
-        tcsetattr (0, TCSANOW, &old_);
+    }
+
+    void TView::resizer ()
+    {
+        ioctl (STDOUT_FILENO, TIOCGWINSZ, &termSize_);
+        virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
+
+        resizeHandler ();
     }
 
     void TView::drawHLine (int xBeg, int yBeg, int length) const
@@ -104,7 +111,7 @@ namespace graphicInterface {
         using namespace std::chrono_literals;
         auto globalStart = std::chrono::steady_clock::now ();
 
-        while (std::chrono::steady_clock::now () < globalStart + 3000ms) {
+        while (!end_ && std::chrono::steady_clock::now () < globalStart + 3000ms) {
             drawFrame ();
             if (std::chrono::steady_clock::now () < globalStart + 1000ms) {
                 drawBigDigit (std::integral_constant <int, 3>{});
@@ -119,13 +126,30 @@ namespace graphicInterface {
         }
     }
 
+    void TView::endScreen ()
+    {
+        setColor (white_, black_);
+        struct pollfd in = {0, POLL_IN, 0};
+        while (!end_) {
+            if (poll (&in, 1, 200) == 1) {
+                unsigned char c;
+                read (0, &c, 1);
+                break;
+            }
+            printf ("\e[%d;%dHPOINTS:", termSize_.ws_row / 6, termSize_.ws_col / 2 - 3);
+
+            writeScoreTable ();
+            printf ("\e[%d;%dH(press any key to exit)", termSize_.ws_row / 6 + alreadyWriten_ + 1, termSize_.ws_col / 2 - 12);
+            fflush (stdout);
+            alreadyWriten_ = 0;
+        }
+        resetColor ();
+        printf ("\e[1;1H\e[J");
+    }
+
     void TView::drawFrame ()
     {
-        ioctl (STDOUT_FILENO, TIOCGWINSZ, &termSize_);
-
         printf ("\e[1;1H\e[J");
-
-        virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
 
         setColor (purple_, purple_);
         sym_ = {' ', ' '};
@@ -185,6 +209,13 @@ namespace graphicInterface {
         fflush (stdout);
     }
 
+    void TView::write (const std::pair<std::string, size_t> &line)
+    {
+        std::string text = std::to_string (++alreadyWriten_) + ". " + line.first + "    " + std::to_string (line.second);
+
+        printf ("\e[%d;%dH%s", termSize_.ws_row / 6 + alreadyWriten_, termSize_.ws_col / 2 - int (text.length ()) / 2, text.data ());
+    }
+
     void TView::buttonHandler ()
     {
         using namespace std::chrono_literals;
@@ -216,6 +247,7 @@ namespace graphicInterface {
 
     void TView::run ()
     {
+        resizeHandler ();
         startScreen ();
         int result;
         while (!end_) {
@@ -231,10 +263,11 @@ namespace graphicInterface {
             drawing ();
         }
 
-        printf ("\e[1;1H\e[J");  // clearing window
-        // TODO: normal quit
         if (result == 1) {
-            printf ("Game Over\n");
+            end_ = false;
+            endScreen ();
         }
+
+        tcsetattr (0, TCSANOW, &old_);
     }
 }  // namespace graphicInterface

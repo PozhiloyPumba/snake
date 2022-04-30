@@ -22,8 +22,10 @@ namespace graphicInterface {
         const int purple_ = 62;
         const int red_ = 196;
         const int green_ = 46;
+        const int white_ = 231;
 
         bool end_ = false;
+        int alreadyWriten_ = 0;
 
         struct termios old_;
         std::pair<char, char> sym_{' ', ' '};
@@ -39,9 +41,11 @@ namespace graphicInterface {
         void drawVLine (int xBeg, int yBeg, int length) const;  // numerate from 0
         void buttonHandler ();
         void startScreen ();
+        void endScreen ();
         void drawBigDigit (std::integral_constant<int, 1>);
         void drawBigDigit (std::integral_constant<int, 2>);
         void drawBigDigit (std::integral_constant<int, 3>);
+        void resizer ();
 
     public:
         TView ();
@@ -55,7 +59,7 @@ namespace graphicInterface {
         std::pair<int, int> getTermSize () const override { return virtSize_; }
         void paint (const std::pair<int, int> &rabbit) override;
         void paint (const Control::Snake &snake) override;
-        void write (const std::pair<std::string, size_t> &line) override {}  // TODO:
+        void write (const std::pair<std::string, size_t> &line) override;
         void drawFrame () override;
 
         void addButton (const std::string &button, const std::function<void ()> &handler) override { buttonTable_.insert ({button, handler}); }

@@ -151,14 +151,6 @@ namespace graphicInterface {
 
     void GView::endScreen ()
     {
-        const sf::Vector2u size = window_.getSize ();
-        sf::RectangleShape frameIn ({float (size.x - 2 * ceilSize_), float (size.y - 2 * ceilSize_)});
-        frameIn.setFillColor (sf::Color (0, 0, 0, 192));
-
-        frameIn.move (ceilSize_, ceilSize_);
-
-        window_.draw (frameIn);
-
          sf::Music music;
          if (!music.openFromFile("../sprites/VIKA.wav"))
              throw std::invalid_argument ("music doesn't open");
@@ -166,23 +158,43 @@ namespace graphicInterface {
         music.setLoop (true);
         music.play ();
 
-        sf::Text text ("POINTS:", font_, 40);
-        text.setOrigin (
-            text.getLocalBounds ().width / 2.0f,
-            text.getLocalBounds ().height / 2.0f);
-
-        text.setFillColor (sf::Color::Green);
-        text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - 210);
-        window_.draw (text);
-
-        writeScoreTable ();
-
-        window_.display ();
+        bool resized = true;
 
         while (window_.isOpen ()) {
             sf::Event event;
-            while (window_.pollEvent (event))
+            while (window_.pollEvent (event)) {
                 closeAndResizeHelper (event);
+                if (event.type == sf::Event::Resized)
+                    resized = true;
+            }
+
+            if (resized) {
+                window_.clear ();
+                drawFrame ();
+                sf::Vector2u size = window_.getSize ();
+                size = {size.x - size.x % ceilSize_, size.y - size.y % ceilSize_};
+                sf::RectangleShape frameIn ({float (size.x - 2 * ceilSize_), float (size.y - 2 * ceilSize_)});
+                frameIn.setFillColor (sf::Color (0, 0, 0, 192));
+
+                frameIn.move (ceilSize_, ceilSize_);
+
+                window_.draw (frameIn);
+
+                sf::Text text ("POINTS:", font_, 40);
+                text.setOrigin (
+                    text.getLocalBounds ().width / 2.0f,
+                    text.getLocalBounds ().height / 2.0f);
+
+                text.setFillColor (sf::Color::Green);
+                text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - window_.getView ().getCenter ().y / 2);
+                window_.draw (text);
+
+                writeScoreTable ();
+
+                window_.display ();
+                alreadyWriten_ = 0;
+                resized = false;
+            }
         }
     }
 
@@ -198,6 +210,7 @@ namespace graphicInterface {
                 sf::View (
                     sf::Vector2f (w / 2.0, h / 2.0),
                     sf::Vector2f (w, h)));
+            resizeHandler ();
         }
     }
 
@@ -217,7 +230,7 @@ namespace graphicInterface {
         window_.draw (frameIn);
     }
 
-    void GView::paint (const std::pair<int, int> &rabbit)  // TODO: it needs in some moving
+    void GView::paint (const std::pair<int, int> &rabbit)
     {
         setTextureInSprite (freshMeat_);
         spr_.setPosition ((rabbit.first + 0.5) * ceilSize_, (rabbit.second + 0.5) * ceilSize_ + 1);
@@ -259,12 +272,14 @@ namespace graphicInterface {
             text.getLocalBounds ().width / 2.0f,
             text.getLocalBounds ().height / 2.0f);
 
-        text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - 200 + alreadyWriten_ * 30);
+        text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - window_.getView ().getCenter ().y / 2 + alreadyWriten_ * 30);
         window_.draw (text);
     }
 
     void GView::run ()
     {
+        resizeHandler ();
+        
         using namespace std::chrono_literals;
 
         startScreen ();

@@ -38,6 +38,7 @@ namespace graphicInterface {
         std::function<int ()> setCoordObjs;
         std::function<void ()> botsHandler;
         std::function<void ()> writeScoreTable;
+        std::function<void ()> resizeHandler;
 
         virtual void addButton (const std::string &button, const std::function<void ()> &handler) = 0;
         virtual void eraseButton (const std::string &button_) = 0;

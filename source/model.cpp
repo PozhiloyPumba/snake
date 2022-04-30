@@ -17,14 +17,24 @@ namespace gameModel {
         v->setCoordObjs = std::bind (&Game::controller, this);
         v->botsHandler = std::bind (&Game::botsHandler, this);
         v->writeScoreTable = std::bind (&Game::drawScore, this);
+        v->resizeHandler = std::bind (&Game::setAvailablefields, this);
+    }
 
-        auto size = v->getTermSize ();
+    void Game::setAvailablefields ()
+    {
+        available_.clear ();
+        rabbits_.clear ();
+
+        auto size = graphicInterface::View::get ()->getTermSize ();
         auto fieldSize = (size.first - 2) * (size.second - 2);
 
         std::generate_n (
             std::inserter (available_, available_.end ()),
             fieldSize - 1,
             [n = 0] () mutable { return ++n; });
+        
+        for (auto s: snakes_)
+            std::for_each (s->body_.begin (), s->body_.end (), [this] (auto forErase) {available_.erase (indexFromPair (forErase));});
 
         for (int i = 0; i < nRabbits_; ++i) {
             if (!available_.size ())

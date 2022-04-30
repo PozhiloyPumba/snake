@@ -45,8 +45,9 @@ namespace graphicInterface {
     {
         ioctl (STDOUT_FILENO, TIOCGWINSZ, &termSize_);
         virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
-
-        resizeHandler ();
+        
+        if (!end_)
+            resizeHandler ();
     }
 
     void TView::drawHLine (int xBeg, int yBeg, int length) const
@@ -136,10 +137,13 @@ namespace graphicInterface {
                 read (0, &c, 1);
                 break;
             }
+            drawFrame ();
+
             printf ("\e[%d;%dHPOINTS:", termSize_.ws_row / 6, termSize_.ws_col / 2 - 3);
 
             writeScoreTable ();
             printf ("\e[%d;%dH(press any key to exit)", termSize_.ws_row / 6 + alreadyWriten_ + 1, termSize_.ws_col / 2 - 12);
+            printf ("\e[0;0H");
             fflush (stdout);
             alreadyWriten_ = 0;
         }

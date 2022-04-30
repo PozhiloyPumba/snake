@@ -272,7 +272,7 @@ namespace graphicInterface {
             text.getLocalBounds ().width / 2.0f,
             text.getLocalBounds ().height / 2.0f);
 
-        text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y - window_.getView ().getCenter ().y / 2 + alreadyWriten_ * 30);
+        text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 2 + alreadyWriten_ * 40);
         window_.draw (text);
     }
 
@@ -280,8 +280,6 @@ namespace graphicInterface {
     {
         resizeHandler ();
         
-        using namespace std::chrono_literals;
-
         startScreen ();
 
         while (window_.isOpen ()) {
@@ -289,7 +287,7 @@ namespace graphicInterface {
 
             auto start = std::chrono::steady_clock::now ();
 
-            while (std::chrono::steady_clock::now () < start + 200ms) {
+            while (std::chrono::steady_clock::now () < start + tickTime_) {
                 while (window_.pollEvent (event)) {
                     closeAndResizeHelper (event);
 
@@ -299,7 +297,7 @@ namespace graphicInterface {
                             res->second ();
                     }
                 }
-                if (chapterOfCycle_ && std::chrono::steady_clock::now () > start + 100ms) {
+                if (chapterOfCycle_ && std::chrono::steady_clock::now () > start + tickTime_ / 2) {
                     chapterOfCycle_ = 0;
                     window_.clear ();
                     drawing ();

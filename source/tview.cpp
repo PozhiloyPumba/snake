@@ -227,7 +227,7 @@ namespace graphicInterface {
         std::string request = "";
         auto start = std::chrono::steady_clock::now ();
 
-        while (std::chrono::steady_clock::now () < start + 200ms) {
+        while (std::chrono::steady_clock::now () < start + tickTime_) {
             if (poll (&in, 1, 10) == 1) {  // 10 because I can do it)))
                 unsigned char c;
                 read (0, &c, 1);

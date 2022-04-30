@@ -89,7 +89,7 @@ namespace Control {
 
         void clearCache () override;
 
-        ~Human () override {}
+        ~Human () override = default;
     };
 
     class StupidBot final : public Snake {
@@ -100,7 +100,7 @@ namespace Control {
         StupidBot ();
         void setModel (gameModel::Game *model) { model_ = model; }
         void step ();
-        ~StupidBot () override {}
+        ~StupidBot () override = default;
     };
 }  // namespace Control
 

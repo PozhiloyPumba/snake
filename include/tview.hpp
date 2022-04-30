@@ -46,6 +46,7 @@ namespace graphicInterface {
         void drawBigDigit (std::integral_constant<int, 2>);
         void drawBigDigit (std::integral_constant<int, 3>);
         void resizer ();
+        void endHandler () override;
 
     public:
         TView ();
@@ -54,7 +55,6 @@ namespace graphicInterface {
         static inline std::function<void ()> interruptHandler;
         static inline std::function<void ()> changeTermSizeHandler;
 
-        void endHandler () override;
 
         std::pair<int, int> getTermSize () const override { return virtSize_; }
         void paint (const std::pair<int, int> &rabbit) override;

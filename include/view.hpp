@@ -8,14 +8,21 @@
 #include <memory>
 #include <string_view>
 #include <unordered_map>
+#include <chrono>
 
 #include "model.hpp"
 
 namespace graphicInterface {
+    using namespace std::chrono_literals;
+
     class View {
     private:
         static inline const std::string_view textView = "text";
         static inline const std::string_view graphView = "graph";
+    
+    protected:
+
+        std::chrono::milliseconds tickTime_ = 200ms;
 
     public:
         static inline std::shared_ptr<View> obj = nullptr;

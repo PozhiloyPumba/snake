@@ -15,7 +15,7 @@
 namespace graphicInterface {
     using namespace std::chrono_literals;
 
-    class View {
+    class View {    //TODO: maybe add pause
     private:
         static inline const std::string_view textView = "text";
         static inline const std::string_view graphView = "graph";

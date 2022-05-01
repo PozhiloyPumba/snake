@@ -14,8 +14,7 @@ namespace Control {
         if (buttons.size () != 4)
             throw std::logic_error ("you choose the wrong quantity of buttons");
 
-        for (auto curIt = buttons.begin (), endIt = buttons.end (); curIt != endIt; ++curIt)
-            buttons_.push_back (*curIt);
+        std::for_each (buttons.begin (), buttons.end (), [this] (auto but) {buttons_.push_back (but);});
     }
 
     Human::Human (const std::initializer_list<std::string> &buttons) : Snake (controlType::HUMAN)
@@ -48,12 +47,8 @@ namespace Control {
     {
         auto v = graphicInterface::View::get ();
 
-        dir e = dir::UP;
-
-        for (auto curIt = buttons_.begin (), endIt = buttons_.end (); curIt != endIt; ++curIt) {
-            v->addButton (*curIt, std::bind (&Human::buttonHandler, this, e));
-            e = static_cast<dir> (static_cast<std::underlying_type<dir>::type> (e) + 1);
-        }
+        std::for_each (buttons_.begin (), buttons_.end (), 
+                       [this, v, e = 0] (auto but) mutable {v->addButton (but, std::bind (&Human::buttonHandler, this, static_cast <dir> (e++)));});
     }
 
     StupidBot::StupidBot () : Snake (controlType::BOT)
@@ -93,7 +88,7 @@ namespace Control {
         return neighbours;
     }
 
-    void StupidBot::step ()
+    void StupidBot::step () // simple BFS
     {
         std::set<int> inQueue;
         std::queue<std::pair <int, dir>> queue;
@@ -103,15 +98,13 @@ namespace Control {
 
         for (auto n: startNeighbours) {
             ++i;
-            auto resAv = available_->find (n);
 
-            if (resAv != available_->end ()) {
+            if (auto resAv = available_->find (n); resAv != available_->end ()) {
                 queue.push ({n, static_cast<dir> (i)});
                 inQueue.insert (n);
             }
             else {
-                auto resInFood = food_->find (n);
-                if (resInFood != food_->end ()) {
+                if (auto resInFood = food_->find (n); resInFood != food_->end ()) {
                     direction_ = static_cast<dir> (i);
                     return;
                 }
@@ -125,13 +118,10 @@ namespace Control {
             std::vector<int> neighbours = getNeighbours (curCeilIndex.first);
 
             for (auto n: neighbours) {
-                auto resAv = available_->find (n);
-                auto resInQ = inQueue.find (n);
-
-                if (resInQ != inQueue.end ())
+                if (auto resInQ = inQueue.find (n); resInQ != inQueue.end ())
                     continue;
 
-                if (resAv != available_->end ()) {
+                if (auto resAv = available_->find (n); resAv != available_->end ()) {
                     queue.push ({n, curCeilIndex.second});
                     inQueue.insert (n);
                 }

@@ -11,7 +11,6 @@ namespace graphicInterface {
             throw std::invalid_argument ("../sprites/ComicSansMS.ttf doesn't open");
 
         loadTexture (freshMeat_, "../sprites/freshMeat.png");
-        // loadTexture (frame_, "../sprites/frame.png");
 
         for (int i = 0; i < 2; ++i) {
             sf::Texture pacman;

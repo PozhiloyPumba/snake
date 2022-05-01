@@ -99,12 +99,12 @@ namespace Control {
         for (auto n: startNeighbours) {
             ++i;
 
-            if (auto resAv = available_->find (n); resAv != available_->end ()) {
+            if (available_->find (n) != available_->end ()) {
                 queue.push ({n, static_cast<dir> (i)});
                 inQueue.insert (n);
             }
             else {
-                if (auto resInFood = food_->find (n); resInFood != food_->end ()) {
+                if (food_->find (n) != food_->end ()) {
                     direction_ = static_cast<dir> (i);
                     return;
                 }
@@ -118,16 +118,15 @@ namespace Control {
             std::vector<int> neighbours = getNeighbours (curCeilIndex.first);
 
             for (auto n: neighbours) {
-                if (auto resInQ = inQueue.find (n); resInQ != inQueue.end ())
+                if (inQueue.find (n) != inQueue.end ())
                     continue;
 
-                if (auto resAv = available_->find (n); resAv != available_->end ()) {
+                if (available_->find (n) != available_->end ()) {
                     queue.push ({n, curCeilIndex.second});
                     inQueue.insert (n);
                 }
                 else {
-                    auto resInFood = food_->find (n);
-                    if (resInFood != food_->end ()) {
+                    if (food_->find (n) != food_->end ()) {
                         direction_ = curCeilIndex.second;
                         return;
                     }

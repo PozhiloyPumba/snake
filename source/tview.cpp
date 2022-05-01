@@ -243,9 +243,7 @@ namespace graphicInterface {
 
                 request += c;
 
-                auto res = buttonTable_.find (request);
-
-                if (res != buttonTable_.end ()) {
+                if (auto res = buttonTable_.find (request); res != buttonTable_.end ()) {
                     res->second ();
                     request = "";
                 }

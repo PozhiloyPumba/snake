@@ -21,6 +21,7 @@ namespace graphicInterface {
         sf::RenderWindow window_;
         sf::Sprite spr_;
         sf::Texture freshMeat_;
+        sf::Texture frame_;
         std::vector<sf::Texture> head_;
         std::vector<sf::Texture> tail_;
         sf::Font font_;

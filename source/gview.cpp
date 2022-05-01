@@ -1,4 +1,5 @@
 #include "gview.hpp"
+#include "figures.hpp"
 
 namespace graphicInterface {
 #define X_SCREEN_SIZE 800.
@@ -10,6 +11,7 @@ namespace graphicInterface {
             throw std::invalid_argument ("../sprites/ComicSansMS.ttf doesn't open");
 
         loadTexture (freshMeat_, "../sprites/freshMeat.png");
+        // loadTexture (frame_, "../sprites/frame.png");
 
         for (int i = 0; i < 2; ++i) {
             sf::Texture pacman;
@@ -40,8 +42,8 @@ namespace graphicInterface {
     void GView::setTextureInSprite (const sf::Texture &texture)
     {
         spr_.setTexture (texture);
-        sf::Vector2f targetSize (ceilSize_, ceilSize_);
 
+        sf::Vector2f targetSize (ceilSize_, ceilSize_);
         spr_.setScale (
             targetSize.x / spr_.getLocalBounds ().width,
             targetSize.y / spr_.getLocalBounds ().height);
@@ -214,20 +216,28 @@ namespace graphicInterface {
         }
     }
 
-    void GView::drawFrame ()  // TODO: pacman edges
+    void GView::drawFrame ()
     {
         sf::Vector2u size = window_.getSize ();
         size = {size.x - size.x % ceilSize_, size.y - size.y % ceilSize_};
-        sf::RectangleShape frame ({float (size.x), float (size.y)});
-        frame.setFillColor (sf::Color::Cyan);
+        sf::FloatRect frame (5, 5, size.x - 10, size.y - 10);
 
-        sf::RectangleShape frameIn ({float (size.x - 2 * ceilSize_), float (size.y - 2 * ceilSize_)});
-        frameIn.setFillColor (sf::Color::Black);
+        RoundedRectangle roundRect {frame, static_cast<float> (ceilSize_ / 2)};
+        
+        roundRect.setFillColor       (sf::Color(0, 0, 0, 255));
+        roundRect.setOutlineColor    (sf::Color::Blue);
+        roundRect.setOutlineThickness(2);
 
-        frameIn.move (ceilSize_, ceilSize_);
+        window_.draw (roundRect);
+        sf::FloatRect frameIn (ceilSize_ - 5, ceilSize_ - 5, size.x - 2 * (ceilSize_ - 5), size.y - 2 * (ceilSize_ - 5));
 
-        window_.draw (frame);
-        window_.draw (frameIn);
+        RoundedRectangle roundRectIn {frameIn, static_cast<float> (5)};
+        
+        roundRectIn.setFillColor       (sf::Color(0, 0, 0, 255));
+        roundRectIn.setOutlineColor    (sf::Color::Blue);
+        roundRectIn.setOutlineThickness(2);
+
+        window_.draw (roundRectIn);
     }
 
     void GView::paint (const std::pair<int, int> &rabbit)

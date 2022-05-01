@@ -4,8 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <cmath>
-#include <vector>
 #include <iterator>
+#include <vector>
 
 namespace graphicInterface {
     class RoundedRectangle final : public sf::ConvexShape {
@@ -22,7 +22,7 @@ namespace graphicInterface {
 
         ~RoundedRectangle () override = default;
 
-        inline size_t getPointCount () const override { return vertices_.size(); }
+        inline size_t getPointCount () const override { return vertices_.size (); }
         inline sf::Vector2f getPoint (size_t i) const override { return vertices_[i]; }
     };
 }  // namespace graphicInterface

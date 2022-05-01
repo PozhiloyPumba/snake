@@ -32,14 +32,14 @@ namespace gameModel {
             std::inserter (available_, available_.end ()),
             fieldSize - 1,
             [n = 0] () mutable { return ++n; });
-        
-        for (auto s: snakes_)
-            std::for_each (s->body_.begin (), s->body_.end (), [this] (auto forErase) {available_.erase (indexFromPair (forErase));});
+
+        for (auto s : snakes_)
+            std::for_each (s->body_.begin (), s->body_.end (), [this] (auto forErase) { available_.erase (indexFromPair (forErase)); });
 
         for (int i = 0; i < nRabbits_; ++i) {
             if (!available_.size ())
                 break;
-            auto last = indexFromPair(getNewRandomPair ());
+            auto last = indexFromPair (getNewRandomPair ());
             rabbits_.insert (last);
             available_.erase (last);
         }
@@ -74,7 +74,7 @@ namespace gameModel {
     {
         auto v = graphicInterface::View::get ();
 
-        std::for_each (tableScore_.begin (), tableScore_.end (), [v] (auto line) { v->write (line);});
+        std::for_each (tableScore_.begin (), tableScore_.end (), [v] (auto line) { v->write (line); });
     }
 
     void Game::drawAll () const
@@ -82,8 +82,8 @@ namespace gameModel {
         auto v = graphicInterface::View::get ();
         v->drawFrame ();
 
-        std::for_each (rabbits_.begin (), rabbits_.end (), [this, v] (auto r) { v->paint (pairFromIndex (r));});
-        std::for_each (snakes_.begin (), snakes_.end (), [v] (auto s) { v->paint (*s);});
+        std::for_each (rabbits_.begin (), rabbits_.end (), [this, v] (auto r) { v->paint (pairFromIndex (r)); });
+        std::for_each (snakes_.begin (), snakes_.end (), [v] (auto s) { v->paint (*s); });
     }
 
     bool Game::checkSnakeCrash ()
@@ -148,7 +148,7 @@ namespace gameModel {
         auto *hum = new Control::Human (ctrl);
         hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
 
-        std::for_each (hum->body_.begin (), hum->body_.end (), [this] (auto forErase) {available_.erase (indexFromPair (forErase));});
+        std::for_each (hum->body_.begin (), hum->body_.end (), [this] (auto forErase) { available_.erase (indexFromPair (forErase)); });
 
         hum->setButtons ();
         snakes_.push_back (hum);
@@ -162,7 +162,7 @@ namespace gameModel {
         bot->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
         snakes_.push_back (bot);
 
-        std::for_each (bot->body_.begin (), bot->body_.end (), [this] (auto forErase) {available_.erase (indexFromPair (forErase));});
+        std::for_each (bot->body_.begin (), bot->body_.end (), [this] (auto forErase) { available_.erase (indexFromPair (forErase)); });
 
         bot->setAvailable (available_);
         bot->setFood (rabbits_);
@@ -187,7 +187,7 @@ namespace gameModel {
         available_.erase (indexFromPair (newHead));
 
         for (auto curIt = rabbits_.begin (), endIt = rabbits_.end (); curIt != endIt; ++curIt) {
-            if (pairFromIndex(*curIt) == newHead) {
+            if (pairFromIndex (*curIt) == newHead) {
                 rabbits_.erase (curIt);
 
                 neSiel = false;

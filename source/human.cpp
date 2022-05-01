@@ -1,6 +1,7 @@
+#include "human.hpp"
+
 #include <queue>
 
-#include "human.hpp"
 #include "model.hpp"
 #include "view.hpp"
 
@@ -14,7 +15,7 @@ namespace Control {
         if (buttons.size () != 4)
             throw std::logic_error ("you choose the wrong quantity of buttons");
 
-        std::for_each (buttons.begin (), buttons.end (), [this] (auto but) {buttons_.push_back (but);});
+        std::for_each (buttons.begin (), buttons.end (), [this] (auto but) { buttons_.push_back (but); });
     }
 
     Human::Human (const std::initializer_list<std::string> &buttons) : Snake (controlType::HUMAN)
@@ -47,8 +48,7 @@ namespace Control {
     {
         auto v = graphicInterface::View::get ();
 
-        std::for_each (buttons_.begin (), buttons_.end (), 
-                       [this, v, e = 0] (auto but) mutable {v->addButton (but, std::bind (&Human::buttonHandler, this, static_cast <dir> (e++)));});
+        std::for_each (buttons_.begin (), buttons_.end (), [this, v, e = 0] (auto but) mutable { v->addButton (but, std::bind (&Human::buttonHandler, this, static_cast<dir> (e++))); });
     }
 
     StupidBot::StupidBot () : Snake (controlType::BOT)
@@ -80,23 +80,25 @@ namespace Control {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
         std::vector<int> neighbours;
 
-        neighbours.push_back ((coords.second - 1 > 0) ? indexFromPair ({coords.first, coords.second - 1}) : -1);   // up
-        neighbours.push_back ((coords.first - 1 > 0)  ? indexFromPair ({coords.first - 1, coords.second}) : -1);   // left
-        neighbours.push_back ((coords.second + 1 < termSize.second - 1) ? indexFromPair ({coords.first, coords.second + 1}) : -1);   // down
-        neighbours.push_back ((coords.first + 1 < termSize.first - 1)  ? indexFromPair ({coords.first + 1, coords.second}) : -1);   // right
+        // clang-format off
+        neighbours.push_back ((coords.second - 1 > 0) ? indexFromPair ({coords.first, coords.second - 1}) : -1);                    // up
+        neighbours.push_back ((coords.first  - 1 > 0) ? indexFromPair ({coords.first - 1, coords.second}) : -1);                    // left
+        neighbours.push_back ((coords.second + 1 < termSize.second - 1) ? indexFromPair ({coords.first, coords.second + 1}) : -1);  // down
+        neighbours.push_back ((coords.first  + 1 < termSize.first  - 1) ? indexFromPair ({coords.first + 1, coords.second}) : -1);  // right
+        // clang-format on
 
         return neighbours;
     }
 
-    void StupidBot::step () // simple BFS
+    void StupidBot::step ()  // simple BFS
     {
         std::set<int> inQueue;
-        std::queue<std::pair <int, dir>> queue;
+        std::queue<std::pair<int, dir>> queue;
 
         auto startNeighbours = getNeighbours (indexFromPair (body_.front ()));
         int i = -1;
 
-        for (auto n: startNeighbours) {
+        for (auto n : startNeighbours) {
             ++i;
 
             if (available_->find (n) != available_->end ()) {
@@ -117,7 +119,7 @@ namespace Control {
 
             std::vector<int> neighbours = getNeighbours (curCeilIndex.first);
 
-            for (auto n: neighbours) {
+            for (auto n : neighbours) {
                 if (inQueue.find (n) != inQueue.end ())
                     continue;
 

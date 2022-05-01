@@ -14,7 +14,7 @@ namespace graphicInterface {
     {
         if (sigN != SIGWINCH)
             return;
-        
+
         TView::changeTermSizeHandler ();
     }
 
@@ -45,7 +45,7 @@ namespace graphicInterface {
     {
         ioctl (STDOUT_FILENO, TIOCGWINSZ, &termSize_);
         virtSize_ = {termSize_.ws_col / 2, termSize_.ws_row};
-        
+
         if (!end_)
             resizeHandler ();
     }
@@ -81,7 +81,7 @@ namespace graphicInterface {
         resetColor ();
         fflush (stdout);
     }
-    
+
     void TView::drawBigDigit (std::integral_constant<int, 2>)
     {
         setColor (black_, green_);
@@ -106,7 +106,7 @@ namespace graphicInterface {
         resetColor ();
         fflush (stdout);
     }
-    
+
     void TView::startScreen ()
     {
         using namespace std::chrono_literals;
@@ -116,13 +116,13 @@ namespace graphicInterface {
         while (!end_ && std::chrono::steady_clock::now () < globalStart + 3000ms) {
             drawFrame ();
             if (std::chrono::steady_clock::now () < globalStart + 1000ms) {
-                drawBigDigit (std::integral_constant <int, 3>{});
+                drawBigDigit (std::integral_constant<int, 3>{});
             }
             else if (std::chrono::steady_clock::now () < globalStart + 2000ms) {
-                drawBigDigit (std::integral_constant <int, 2>{});
+                drawBigDigit (std::integral_constant<int, 2>{});
             }
             else {
-                drawBigDigit (std::integral_constant <int, 1>{});
+                drawBigDigit (std::integral_constant<int, 1>{});
             }
 
             if (poll (&in, 1, 200) == 1) {
@@ -279,7 +279,7 @@ namespace graphicInterface {
             endScreen ();
         }
 
-        printf ("\e[1;1H\e[J"); // control clearing window
+        printf ("\e[1;1H\e[J");  // control clearing window
         tcsetattr (0, TCSANOW, &old_);
     }
 }  // namespace graphicInterface

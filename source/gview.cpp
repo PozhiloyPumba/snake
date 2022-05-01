@@ -1,4 +1,5 @@
 #include "gview.hpp"
+
 #include "figures.hpp"
 
 namespace graphicInterface {
@@ -118,7 +119,7 @@ namespace graphicInterface {
     {
         using namespace std::chrono_literals;
         auto globalStart = std::chrono::steady_clock::now ();
-        
+
         auto timer = [&] (auto time) {
             sf::Text text (time, font_, 100);
             text.setOrigin (
@@ -152,9 +153,9 @@ namespace graphicInterface {
 
     void GView::endScreen ()
     {
-         sf::Music music;
-         if (!music.openFromFile("../sprites/VIKA.wav"))
-             throw std::invalid_argument ("music doesn't open");
+        sf::Music music;
+        if (!music.openFromFile ("../sprites/VIKA.wav"))
+            throw std::invalid_argument ("music doesn't open");
 
         music.setLoop (true);
         music.play ();
@@ -221,20 +222,20 @@ namespace graphicInterface {
         size = {size.x - size.x % ceilSize_, size.y - size.y % ceilSize_};
         sf::FloatRect frame (5, 5, size.x - 10, size.y - 10);
 
-        RoundedRectangle roundRect {frame, static_cast<float> (ceilSize_ / 2)};
-        
-        roundRect.setFillColor       (sf::Color(0, 0, 0, 255));
-        roundRect.setOutlineColor    (sf::Color::Blue);
-        roundRect.setOutlineThickness(2);
+        RoundedRectangle roundRect{frame, static_cast<float> (ceilSize_ / 2)};
+
+        roundRect.setFillColor (sf::Color (0, 0, 0, 255));
+        roundRect.setOutlineColor (sf::Color::Blue);
+        roundRect.setOutlineThickness (2);
 
         window_.draw (roundRect);
         sf::FloatRect frameIn (ceilSize_ - 5, ceilSize_ - 5, size.x - 2 * (ceilSize_ - 5), size.y - 2 * (ceilSize_ - 5));
 
-        RoundedRectangle roundRectIn {frameIn, static_cast<float> (5)};
-        
-        roundRectIn.setFillColor       (sf::Color(0, 0, 0, 255));
-        roundRectIn.setOutlineColor    (sf::Color::Blue);
-        roundRectIn.setOutlineThickness(2);
+        RoundedRectangle roundRectIn{frameIn, static_cast<float> (5)};
+
+        roundRectIn.setFillColor (sf::Color (0, 0, 0, 255));
+        roundRectIn.setOutlineColor (sf::Color::Blue);
+        roundRectIn.setOutlineThickness (2);
 
         window_.draw (roundRectIn);
     }
@@ -288,7 +289,7 @@ namespace graphicInterface {
     void GView::run ()
     {
         resizeHandler ();
-        
+
         startScreen ();
 
         while (window_.isOpen ()) {

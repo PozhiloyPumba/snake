@@ -20,13 +20,9 @@ namespace graphicInterface {
             pointsNumberInRoundPart,
             [this, precision, n = 0.] () mutable -> sf::Vector2f { n += precision; return {cosf(n) * radius_, sinf(n) * radius_}; });
 
-        std::for_each (quarterCircle.rbegin (), quarterCircle.rend (), 
-                       [this] (auto point) { vertices_.push_back ({rect_.width - radius_ + point.x, radius_ - point.y}); });
-        std::for_each (quarterCircle.begin (), quarterCircle.end (), 
-                       [this] (auto point) { vertices_.push_back ({rect_.width - radius_ + point.x, rect_.height - radius_ + point.y}); });
-        std::for_each (quarterCircle.rbegin (), quarterCircle.rend (), 
-                       [this] (auto point) { vertices_.push_back ({radius_ - point.x, rect_.height - radius_ + point.y}); });
-        std::for_each (quarterCircle.begin (), quarterCircle.end (), 
-                       [this] (auto point) { vertices_.push_back ({radius_ - point.x, radius_ - point.y}); });
+        std::for_each (quarterCircle.rbegin (), quarterCircle.rend (), [this] (auto point) { vertices_.push_back ({rect_.width - radius_ + point.x, radius_ - point.y}); });
+        std::for_each (quarterCircle.begin (), quarterCircle.end (), [this] (auto point) { vertices_.push_back ({rect_.width - radius_ + point.x, rect_.height - radius_ + point.y}); });
+        std::for_each (quarterCircle.rbegin (), quarterCircle.rend (), [this] (auto point) { vertices_.push_back ({radius_ - point.x, rect_.height - radius_ + point.y}); });
+        std::for_each (quarterCircle.begin (), quarterCircle.end (), [this] (auto point) { vertices_.push_back ({radius_ - point.x, radius_ - point.y}); });
     }
-}
+}  // namespace graphicInterface

@@ -9,8 +9,8 @@
 
 #include <functional>
 #include <iterator>
-#include <utility>
 #include <type_traits>
+#include <utility>
 
 #include "view.hpp"
 
@@ -54,7 +54,6 @@ namespace graphicInterface {
 
         static inline std::function<void ()> interruptHandler;
         static inline std::function<void ()> changeTermSizeHandler;
-
 
         std::pair<int, int> getTermSize () const override { return virtSize_; }
         void paint (const std::pair<int, int> &rabbit) override;

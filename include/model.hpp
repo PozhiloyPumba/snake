@@ -38,7 +38,7 @@ namespace gameModel {
         int indexFromPair (const coord_t &pair) const;
         coord_t pairFromIndex (int index) const;
         void setAvailablefields ();
-        
+
     public:
         Game ();
         void addGamer (const Control::Human &ctrl);

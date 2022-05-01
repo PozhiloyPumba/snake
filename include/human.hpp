@@ -2,10 +2,10 @@
 #define HUMAN_HPP
 
 #include <list>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
-#include <set>
 
 namespace Control {
     using coord_t = std::pair<int, int>;
@@ -36,10 +36,7 @@ namespace Control {
                     body_.push_back ({begin.first - i, begin.second});
         }
 
-        size_t getLength () const
-        {
-            return body_.size ();
-        }
+        size_t getLength () const { return body_.size (); }
 
         virtual void clearCache () {}
         Snake (const controlType &type) : whoami (type) {}
@@ -71,16 +68,14 @@ namespace Control {
                     break;
             }
         }
+
         void initHuman (const std::initializer_list<std::string> &buttons);
 
     public:
         Human (const std::initializer_list<std::string> &buttons);
         Human (const std::string &defaultVariant);
 
-        inline void setName (const std::string &name)
-        {
-            name_ = name;
-        }
+        inline void setName (const std::string &name) { name_ = name; }
 
         void setButtons ();
 
@@ -101,7 +96,7 @@ namespace Control {
     public:
         StupidBot ();
         void setAvailable (std::set<int> &available) { available_ = &available; }
-        void setFood (std::set<int> &food) {food_ = &food;}
+        void setFood (std::set<int> &food) { food_ = &food; }
         void step ();
         ~StupidBot () override = default;
     };

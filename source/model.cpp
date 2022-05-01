@@ -39,9 +39,9 @@ namespace gameModel {
         for (int i = 0; i < nRabbits_; ++i) {
             if (!available_.size ())
                 break;
-            rabbits_.push_back (getNewRandomPair ());
-            auto last = rabbits_.back ();
-            available_.erase (indexFromPair (last));
+            auto last = indexFromPair(getNewRandomPair ());
+            rabbits_.insert (last);
+            available_.erase (last);
         }
     }
 
@@ -53,14 +53,14 @@ namespace gameModel {
         return pairFromIndex (*reqIt);
     }
 
-    int Game::indexFromPair (const coord_t &pair)
+    int Game::indexFromPair (const coord_t &pair) const
     {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
 
         return (pair.second - 1) * (termSize.first - 2) + pair.first - 1;
     }
 
-    coord_t Game::pairFromIndex (int index)
+    coord_t Game::pairFromIndex (int index) const
     {
         auto termSize = graphicInterface::View::get ()->getTermSize ();
 
@@ -82,7 +82,7 @@ namespace gameModel {
         auto v = graphicInterface::View::get ();
         v->drawFrame ();
 
-        std::for_each (rabbits_.begin (), rabbits_.end (), [v] (auto r) { v->paint (r);});
+        std::for_each (rabbits_.begin (), rabbits_.end (), [this, v] (auto r) { v->paint (pairFromIndex (r));});
         std::for_each (snakes_.begin (), snakes_.end (), [v] (auto s) { v->paint (*s);});
     }
 
@@ -164,7 +164,8 @@ namespace gameModel {
 
         std::for_each (bot->body_.begin (), bot->body_.end (), [this] (auto forErase) {available_.erase (indexFromPair (forErase));});
 
-        bot->setModel (this);
+        bot->setAvailable (available_);
+        bot->setFood (rabbits_);
     }
 
     void Game::snakeStep (Control::Snake &s)
@@ -186,14 +187,14 @@ namespace gameModel {
         available_.erase (indexFromPair (newHead));
 
         for (auto curIt = rabbits_.begin (), endIt = rabbits_.end (); curIt != endIt; ++curIt) {
-            if ((*curIt) == newHead) {
+            if (pairFromIndex(*curIt) == newHead) {
                 rabbits_.erase (curIt);
 
                 neSiel = false;
                 if (available_.size ()) {
-                    rabbits_.push_back (getNewRandomPair ());
-                    auto last = rabbits_.back ();
-                    available_.erase (indexFromPair (last));
+                    auto last = indexFromPair (getNewRandomPair ());
+                    rabbits_.insert (last);
+                    available_.erase (last);
                 }
                 break;
             }

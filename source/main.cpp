@@ -9,16 +9,16 @@ int main (int argc, char *argv[])
     gameModel::Game model;
 
     Control::Human h1 ("arrows");
-    Control::Human h2 ("wasd");
+    // Control::Human h2 ("wasd");
 
     h1.setName ("aboba");
 
     model.addGamer (h1);
-    model.addGamer (h2);
+    // model.addGamer (h2);
 
     // for (int i = 0; i < 2; ++i) {
-    //     Control::StupidBot bot;
-    //     model.addGamer (bot);
+        Control::StupidBot bot;
+        model.addGamer (bot);
     // }
 
     screen->run ();

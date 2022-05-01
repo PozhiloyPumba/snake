@@ -19,8 +19,8 @@ namespace gameModel {
     private:
         const int nRabbits_ = 10;
         std::mt19937 generator_{static_cast<long long unsigned> (std::chrono::system_clock::now ().time_since_epoch ().count ())};
-        std::list<coord_t> rabbits_;
         std::list<Control::Snake *> snakes_;
+        std::set<int> rabbits_;
         std::set<int> available_;
 
         using ScoreLine = std::pair<std::string, size_t>;
@@ -35,8 +35,8 @@ namespace gameModel {
         bool checkSnakeCrash ();
         void snakeStep (Control::Snake &s);
         void botsHandler ();
-        int indexFromPair (const coord_t &pair);
-        coord_t pairFromIndex (int index);
+        int indexFromPair (const coord_t &pair) const;
+        coord_t pairFromIndex (int index) const;
         void setAvailablefields ();
         
     public:

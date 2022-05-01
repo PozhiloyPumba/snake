@@ -5,10 +5,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-namespace gameModel {
-    class Game;
-}
+#include <set>
 
 namespace Control {
     using coord_t = std::pair<int, int>;
@@ -94,11 +91,17 @@ namespace Control {
 
     class StupidBot final : public Snake {
         static inline int numberOfStupidBots_ = 0;
-        gameModel::Game *model_ = nullptr;
+        std::set<int> *available_ = nullptr;
+        std::set<int> *food_ = nullptr;
+
+        int indexFromPair (const coord_t &pair) const;
+        coord_t pairFromIndex (int index) const;
+        std::vector<int> getNeighbours (const int curCeilIndex);
 
     public:
         StupidBot ();
-        void setModel (gameModel::Game *model) { model_ = model; }
+        void setAvailable (std::set<int> &available) { available_ = &available; }
+        void setFood (std::set<int> &food) {food_ = &food;}
         void step ();
         ~StupidBot () override = default;
     };

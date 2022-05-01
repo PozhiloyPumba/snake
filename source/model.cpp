@@ -20,6 +20,12 @@ namespace gameModel {
         v->resizeHandler = std::bind (&Game::setAvailablefields, this);
     }
 
+    Game::~Game ()
+    {
+        for (auto s: snakes_)
+            delete s;
+    }
+
     void Game::setAvailablefields ()
     {
         available_.clear ();

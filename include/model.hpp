@@ -41,6 +41,7 @@ namespace gameModel {
 
     public:
         Game ();
+        ~Game ();
         void addGamer (const Control::Human &ctrl);
         void addGamer (const Control::StupidBot &ctrl);
     };

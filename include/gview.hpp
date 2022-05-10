@@ -17,7 +17,7 @@ namespace graphicInterface {
         bool end_ = false;
         int chapterOfCycle_ = 1;
         int alreadyWriten_ = 0;
-        std::pair <float, float> scale_ = {1, 1};
+        std::pair<float, float> scale_ = {1, 1};
 
         sf::RenderWindow window_;
         sf::Sprite spr_;
@@ -42,7 +42,10 @@ namespace graphicInterface {
         void createGamer ();
         void createCustomGamer (const std::string &name);
         void chooserKey (std::vector<std::string>::iterator &key);
-    
+        void inputName (sf::Text &title, std::string &name);
+        void chooseController (sf::Text &title, std::string &name);
+        void smallViewAfterAddingPlayer (const std::string &name, Control::Snake::controlType type);
+
     public:
         GView ();
 

@@ -14,7 +14,7 @@ namespace Control {
             throw std::logic_error ("you choose the wrong quantity of buttons");
 
         std::copy (buttons.begin (), buttons.end (), std::insert_iterator (buttons_, buttons_.end ()));
-        
+
         if (buttons_.size () != 4)
             throw std::logic_error ("you have two or more same buttons");
     }

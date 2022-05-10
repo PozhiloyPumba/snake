@@ -30,9 +30,8 @@ namespace graphicInterface {
         sf::Text text_;
 
     public:
-        Button (const sf::Vector2f &ldp, const sf::Vector2f &rup, const sf::Color &color, const std::string &text, const functor &pred) : 
-            color_ (color),
-            pred_ (pred)
+        Button (const sf::Vector2f &ldp, const sf::Vector2f &rup, const sf::Color &color, const std::string &text, const functor &pred) : color_ (color),
+                                                                                                                                          pred_ (pred)
         {
             if (!font_.loadFromFile ("../sprites/ComicSansMS.ttf"))
                 throw std::invalid_argument ("../sprites/ComicSansMS.ttf doesn't open");
@@ -50,7 +49,7 @@ namespace graphicInterface {
             rectangle.setOrigin (
                 rectangle.getLocalBounds ().width / 2.0f,
                 rectangle.getLocalBounds ().height / 2.0f);
-            
+
             rectangle.setPosition ({(rup.x + ldp.x) / 2, (rup.y + ldp.y) / 2});
             form_ = rectangle;
         }
@@ -60,38 +59,38 @@ namespace graphicInterface {
             text_.setString (str);
         }
 
-        void draw (sf::RenderWindow &window, const std::pair <float, float> &coef)
+        void draw (sf::RenderWindow &window, const std::pair<float, float> &coef)
         {
             auto tmpForm = form_;
             tmpForm.setPosition (form_.getPosition ().x * coef.first, form_.getPosition ().y * coef.second);
             auto tmpText = text_;
             tmpText.setPosition (text_.getPosition ().x * coef.first, text_.getPosition ().y * coef.second);
-            
-            if (checkPointRectCollision(sf::Mouse::getPosition(window), tmpForm)) {
-                form_.setFillColor(sf::Color::Red);
+
+            if (checkPointRectCollision (sf::Mouse::getPosition (window), tmpForm)) {
+                form_.setFillColor (sf::Color::Red);
             }
             else {
-                form_.setFillColor(color_);
+                form_.setFillColor (color_);
             }
             window.draw (tmpForm);
             window.draw (tmpText);
         }
 
-        bool pressed (sf::Event &event, sf::RenderWindow &window, const std::pair <float, float> &coef)
+        bool pressed (sf::Event &event, sf::RenderWindow &window, const std::pair<float, float> &coef)
         {
             auto tmpForm = form_;
             tmpForm.setPosition (form_.getPosition ().x * coef.first, form_.getPosition ().y * coef.second);
 
             if (event.type == sf::Event::MouseButtonPressed) {
-                int flag = true; 
-                while (checkPointRectCollision(sf::Mouse::getPosition(window), tmpForm) && flag && window.isOpen ()) {
+                int flag = true;
+                while (checkPointRectCollision (sf::Mouse::getPosition (window), tmpForm) && flag && window.isOpen ()) {
                     sf::Event event;
                     if (window.pollEvent (event)) {
                         if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Q))
                             window.close ();
                         if (event.type == sf::Event::MouseButtonReleased) {
                             flag = false;
-                            if (checkPointRectCollision(sf::Mouse::getPosition(window), tmpForm)) {
+                            if (checkPointRectCollision (sf::Mouse::getPosition (window), tmpForm)) {
                                 pred_ ();
                                 return true;
                             }

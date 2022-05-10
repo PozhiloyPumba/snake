@@ -33,3 +33,14 @@ add_executable (${EXEC_FILE} ${SOURCES})
 
 target_include_directories(${EXEC_FILE} PRIVATE include)
 target_link_libraries(${EXEC_FILE} sfml-graphics sfml-audio sfml-window)
+
+add_custom_target (
+    graphSnake
+    COMMAND ./snake graph
+    DEPENDS ${EXEC_FILE}
+)
+add_custom_target (
+    textSnake
+    COMMAND ./snake text
+    DEPENDS ${EXEC_FILE}
+)

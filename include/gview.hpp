@@ -17,6 +17,7 @@ namespace graphicInterface {
         bool end_ = false;
         int chapterOfCycle_ = 1;
         int alreadyWriten_ = 0;
+        std::pair <float, float> scale_ = {1, 1};
 
         sf::RenderWindow window_;
         sf::Sprite spr_;
@@ -35,7 +36,13 @@ namespace graphicInterface {
         void startScreen ();
         void endScreen ();
         void closeAndResizeHelper (const sf::Event &event);
-
+        void menu ();
+        void menuAddPlayer ();
+        void menuAddBot (int type);
+        void createGamer ();
+        void createCustomGamer (const std::string &name);
+        void chooserKey (std::vector<std::string>::iterator &key);
+    
     public:
         GView ();
 

@@ -8,12 +8,15 @@
 namespace Control {
     Snake::~Snake () {}
 
-    Human::Human (const std::vector<std::string> &buttons, const std::string &name) : Snake (controlType::HUMAN, name) // (up, left, down, right)
+    Human::Human (const std::vector<std::string> &buttons, const std::string &name) : Snake (controlType::HUMAN, name)  // (up, left, down, right)
     {
         if (buttons.size () != 4)
             throw std::logic_error ("you choose the wrong quantity of buttons");
 
-        std::copy (buttons.begin (), buttons.end (), std::back_insert_iterator (buttons_));
+        std::copy (buttons.begin (), buttons.end (), std::insert_iterator (buttons_, buttons_.end ()));
+        
+        if (buttons_.size () != 4)
+            throw std::logic_error ("you have two or more same buttons");
     }
 
     void Human::clearCache ()

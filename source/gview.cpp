@@ -1,5 +1,7 @@
 #include "gview.hpp"
+#include <functional>
 
+#include "button.hpp"
 #include "figures.hpp"
 
 namespace graphicInterface {
@@ -97,20 +99,6 @@ namespace graphicInterface {
                 }
                 throw std::invalid_argument ("unknown button");
             }
-            case '[': return sf::Keyboard::LBracket;
-            case ']': return sf::Keyboard::RBracket;
-            case ';': return sf::Keyboard::Semicolon;
-            case ',': return sf::Keyboard::Comma;
-            case '.': return sf::Keyboard::Period;
-            case '\'': return sf::Keyboard::Quote;
-            case '/': return sf::Keyboard::Slash;
-            case '\\': return sf::Keyboard::Backslash;
-            case '~': return sf::Keyboard::Tilde;
-            case '=': return sf::Keyboard::Equal;
-            case '-': return sf::Keyboard::Hyphen;
-            case ' ': return sf::Keyboard::Space;
-            case '\t': return sf::Keyboard::Tab;
-            case '+': return sf::Keyboard::Add;
             default: throw std::invalid_argument ("unknown button");
         }
     }
@@ -208,6 +196,8 @@ namespace graphicInterface {
             virtSize_ = {event.size.width / ceilSize_, event.size.height / ceilSize_};
             float w = static_cast<float> (event.size.width);
             float h = static_cast<float> (event.size.height);
+            scale_ = {w / X_SCREEN_SIZE, h / Y_SCREEN_SIZE};
+
             window_.setView (
                 sf::View (
                     sf::Vector2f (w / 2.0, h / 2.0),
@@ -286,8 +276,243 @@ namespace graphicInterface {
         window_.draw (text);
     }
 
+    void GView::chooserKey (std::vector<std::string>::iterator &key)
+    {
+        bool endChooser = false;
+
+        while (!endChooser && window_.isOpen ()) {
+            sf::Event event;
+            if (window_.pollEvent (event)) {
+                closeAndResizeHelper (event);
+
+                if (event.type == sf::Event::KeyPressed) {
+                    const sf::Keyboard::Key keycode = event.key.code;
+                    if (keycode >= sf::Keyboard::A && keycode <= sf::Keyboard::Z) {
+                        *key = (keycode - sf::Keyboard::A + 'a');
+                        endChooser = true;
+                    }
+
+                    if (keycode >= sf::Keyboard::Right && keycode >= sf::Keyboard::Down){
+                        switch (keycode) {
+                            case sf::Keyboard::Up: *key = "\e[A";    break;
+                            case sf::Keyboard::Down: *key = "\e[B";  break;
+                            case sf::Keyboard::Right: *key = "\e[C"; break;
+                            case sf::Keyboard::Left: *key = "\e[D";  break;
+                            default: throw std::invalid_argument ("unknown button");
+                        }
+                        endChooser = true;
+                    }
+
+                }
+            }
+        }
+    }
+
+    void GView::createCustomGamer (const std::string &name)
+    {
+        sf::Text title ("Select keys (press Enter after selection):", font_);
+        title.setFillColor (sf::Color::Magenta);
+        title.setOrigin (
+            title.getLocalBounds ().width / 2.0f,
+            title.getLocalBounds ().height / 2.0f);
+
+        title.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
+
+        std::vector<std::string> buttons {4, ""};
+
+        Button up = {{350, 200}, {450, 300}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin ())};
+        Button left = {{225, 325}, {325, 425}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin () + 1)};
+        Button down = {{350, 325}, {450, 425}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin () + 2)};
+        Button right = {{475, 325}, {575, 425}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin () + 3)};
+
+        bool endCustom = false;
+
+        while (!endCustom && window_.isOpen ()) {
+            sf::Event event;
+            if (window_.pollEvent (event)) {
+                closeAndResizeHelper (event);
+
+                up.pressed (event, window_, scale_);
+                left.pressed (event, window_, scale_);
+                down.pressed (event, window_, scale_);
+                right.pressed (event, window_, scale_);
+
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
+                    endCustom = true;
+            }
+
+            up.setString (buttons[0]);
+            left.setString (buttons[1]);
+            down.setString (buttons[2]);
+            right.setString (buttons[3]);
+
+            window_.clear ();
+            title.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
+            window_.draw (title);
+
+            up.draw (window_, scale_);
+            left.draw (window_, scale_);
+            down.draw (window_, scale_);
+            right.draw (window_, scale_);
+
+            window_.display ();
+        }
+        addPlayerHandler (buttons, name);
+    }
+
+    void GView::createGamer ()
+    {
+        sf::Text title ("Enter name:", font_);
+        title.setFillColor (sf::Color::Magenta);
+        title.setOrigin (
+            title.getLocalBounds ().width / 2.0f,
+            title.getLocalBounds ().height / 2.0f);
+
+        title.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 2 - 40);
+
+        sf::Text text ("", font_);
+        text.setFillColor (sf::Color::Red);
+        
+        std::string name;
+        bool endName = false;
+
+        while (!endName && window_.isOpen ()) {
+            sf::Event event;
+            if (window_.pollEvent (event)) {
+                if (event.type == sf::Event::Closed)
+                    window_.close ();
+                if (event.type == sf::Event::Resized) {
+                    virtSize_ = {event.size.width / ceilSize_, event.size.height / ceilSize_};
+                    float w = static_cast<float> (event.size.width);
+                    float h = static_cast<float> (event.size.height);
+                    scale_ = {w / X_SCREEN_SIZE, h / Y_SCREEN_SIZE};
+
+                    window_.setView (
+                        sf::View (
+                            sf::Vector2f (w / 2.0, h / 2.0),
+                            sf::Vector2f (w, h)));
+                }
+
+                if (event.type == sf::Event::KeyPressed) {
+                    const sf::Keyboard::Key keycode = event.key.code;
+                    if (keycode >= sf::Keyboard::A && keycode <= sf::Keyboard::Z && name.length () < 50) {
+                        char c = static_cast<char>(keycode - sf::Keyboard::A + 'a');
+                        name.push_back (c);
+                    }
+                    if (keycode == sf::Keyboard::Enter)
+                        endName = true;
+                    
+                    if (keycode == sf::Keyboard::BackSpace && name.length ()) {
+                        name.pop_back ();
+                    }
+                }
+            }
+            text.setString (name);
+            text.setOrigin (
+                text.getLocalBounds ().width / 2.0f,
+                text.getLocalBounds ().height / 2.0f);
+
+            text.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 2);
+
+            window_.clear ();
+
+            title.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 2 - 40);
+            window_.draw (title);
+            window_.draw (text);
+            
+            window_.display ();
+        }
+
+        bool endControls = false;
+        
+        title.setFillColor (sf::Color::Magenta);
+        title.setString ("Choose control type:");
+        title.setOrigin (
+            title.getLocalBounds ().width / 2.0f,
+            title.getLocalBounds ().height / 2.0f);
+
+        title.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
+
+        std::vector <std::string> buttonArrows = {"\e[A", "\e[D", "\e[B", "\e[C"};
+        std::vector <std::string> buttonWASD = {"w", "a", "s", "d"};
+
+        Button arrows ({100, 100}, {700, 200}, sf::Color::Blue, "arrows", std::bind (View::addPlayerHandler, buttonArrows, name));
+        Button wasd ({100, 250}, {700, 350}, sf::Color::Blue, "WASD", std::bind (View::addPlayerHandler, buttonWASD, name));
+        Button custom ({100, 400}, {700, 500}, sf::Color::Blue, "custom", std::bind (&GView::createCustomGamer, this, name));
+
+        while (!endControls && window_.isOpen ()) {
+            sf::Event event;
+            if (window_.pollEvent (event)) {
+                if (event.type == sf::Event::Closed)
+                    window_.close ();
+                if (event.type == sf::Event::Resized) {
+                    virtSize_ = {event.size.width / ceilSize_, event.size.height / ceilSize_};
+                    float w = static_cast<float> (event.size.width);
+                    float h = static_cast<float> (event.size.height);
+                    scale_ = {w / X_SCREEN_SIZE, h / Y_SCREEN_SIZE};
+                    
+                    window_.setView (
+                        sf::View (
+                            sf::Vector2f (w / 2.0, h / 2.0),
+                            sf::Vector2f (w, h)));
+                    resizeHandler ();
+                }
+                if (arrows.pressed (event, window_, scale_)) endControls = true;
+                if (wasd.pressed (event, window_, scale_)) endControls = true;
+                if (custom.pressed (event, window_, scale_)) endControls = true;
+            }
+            window_.clear ();
+            title.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
+            window_.draw (title);
+
+            arrows.draw (window_, scale_);
+            wasd.draw (window_, scale_);
+            custom.draw (window_, scale_);
+            
+            window_.display ();
+        }
+    }
+
+    void GView::menu ()
+    {
+        sf::Text menuLegend ("MENU (press Enter to start):", font_, 50);
+        menuLegend.setOrigin (
+            menuLegend.getLocalBounds ().width / 2.0f,
+            menuLegend.getLocalBounds ().height / 2.0f);
+
+        menuLegend.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
+
+        Button addGamer ({100, 100}, {700, 200}, sf::Color::Blue, "add new player", std::bind (&GView::createGamer, this));
+        Button addSmartBot ({100, 250}, {700, 350}, sf::Color::Blue, "add smart bot", std::bind (addBotHandler, 1));
+        Button addStupidBot ({100, 400}, {700, 500}, sf::Color::Blue, "add stupid bot", std::bind (addBotHandler, 0));
+
+        bool endMenu = false;
+        while (!endMenu && window_.isOpen ()) {
+            sf::Event event;
+            if (window_.pollEvent (event)) {
+                closeAndResizeHelper (event);
+
+                if (addGamer.pressed (event, window_, scale_)) continue;
+                if (addSmartBot.pressed (event, window_, scale_)) continue;
+                if (addStupidBot.pressed (event, window_, scale_)) continue;
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
+                    endMenu = true;
+            }
+
+            window_.clear ();
+            menuLegend.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
+            window_.draw (menuLegend);
+            addGamer.draw (window_, scale_);
+            addSmartBot.draw (window_, scale_);
+            addStupidBot.draw (window_, scale_);
+
+            window_.display ();
+        }
+    }
+
     void GView::run ()
     {
+        menu ();
         resizeHandler ();
 
         startScreen ();

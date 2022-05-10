@@ -39,13 +39,13 @@ namespace Control {
         size_t getLength () const { return body_.size (); }
 
         virtual void clearCache () {}
-        Snake (const controlType &type, const std::string &name) : whoami (type), name_(name) {}
+        Snake (const controlType &type, const std::string &name) : whoami (type), name_ (name) {}
         virtual ~Snake () = 0;
     };
 
     class Human final : public Snake {
         static inline int numberOfPlayers_ = 0;
-        std::vector<std::string> buttons_;
+        std::set<std::string> buttons_;
 
         inline void buttonHandler (dir direction)
         {

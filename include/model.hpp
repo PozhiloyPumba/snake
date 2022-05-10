@@ -42,8 +42,8 @@ namespace gameModel {
     public:
         Game ();
         ~Game ();
-        void addGamer (const std::vector<std::string> &buttons, const std::string &name);    // add Human
-        void addBot (int typeOfBot);   // add bot
+        void addGamer (const std::vector<std::string> &buttons, const std::string &name);  // add Human
+        void addBot (int typeOfBot);                                                       // add bot
     };
 }  // namespace gameModel
 

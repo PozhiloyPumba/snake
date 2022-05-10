@@ -20,12 +20,11 @@ namespace gameModel {
         v->resizeHandler = std::bind (&Game::setAvailablefields, this);
         v->addPlayerHandler = std::bind (&Game::addGamer, this, std::placeholders::_1, std::placeholders::_2);
         v->addBotHandler = std::bind (&Game::addBot, this, std::placeholders::_1);
-
     }
 
     Game::~Game ()
     {
-        for (auto s: snakes_)
+        for (auto s : snakes_)
             delete s;
     }
 
@@ -156,10 +155,12 @@ namespace gameModel {
         static int countDefault = 0;
         auto v = graphicInterface::View::get ()->getTermSize ();
         Control::Human *hum;
-        if (name == "") hum = new Control::Human (  buttons, 
-                                                    "Player" + std::to_string (++countDefault));
+        if (name == "")
+            hum = new Control::Human (buttons,
+                                      "Player" + std::to_string (++countDefault));
 
-        else hum = new Control::Human (buttons, name);
+        else
+            hum = new Control::Human (buttons, name);
 
         hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
 

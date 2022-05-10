@@ -8,32 +8,12 @@
 namespace Control {
     Snake::~Snake () {}
 
-    void Human::initHuman (const std::initializer_list<std::string> &buttons)  // (up, left, down, right)
+    Human::Human (const std::vector<std::string> &buttons, const std::string &name) : Snake (controlType::HUMAN, name) // (up, left, down, right)
     {
-        name_ = "Player" + std::to_string (++numberOfPlayers_);
-
         if (buttons.size () != 4)
             throw std::logic_error ("you choose the wrong quantity of buttons");
 
-        std::for_each (buttons.begin (), buttons.end (), [this] (auto but) { buttons_.push_back (but); });
-    }
-
-    Human::Human (const std::initializer_list<std::string> &buttons) : Snake (controlType::HUMAN)
-    {
-        initHuman (buttons);
-    }
-
-    Human::Human (const std::string &defaultVariant) : Snake (controlType::HUMAN)
-    {
-        if (defaultVariant == "arrows") {
-            initHuman ({"\e[A", "\e[D", "\e[B", "\e[C"});
-            return;
-        }
-        if (defaultVariant == "wasd") {
-            initHuman ({"w", "a", "s", "d"});
-            return;
-        }
-        throw std::invalid_argument ("I don't know this default combination");
+        std::copy (buttons.begin (), buttons.end (), std::back_insert_iterator (buttons_));
     }
 
     void Human::clearCache ()
@@ -51,9 +31,8 @@ namespace Control {
         std::for_each (buttons_.begin (), buttons_.end (), [this, v, e = 0] (auto but) mutable { v->addButton (but, std::bind (&Human::buttonHandler, this, static_cast<dir> (e++))); });
     }
 
-    StupidBot::StupidBot () : Snake (controlType::BOT)
+    StupidBot::StupidBot () : Snake (controlType::BOT, "StupidBot" + std::to_string (++numberOfStupidBots_))
     {
-        name_ = "StupidBot" + std::to_string (++numberOfStupidBots_);
     }
 
     int StupidBot::indexFromPair (const coord_t &pair) const

@@ -39,7 +39,7 @@ namespace Control {
         size_t getLength () const { return body_.size (); }
 
         virtual void clearCache () {}
-        Snake (const controlType &type) : whoami (type) {}
+        Snake (const controlType &type, const std::string &name) : whoami (type), name_(name) {}
         virtual ~Snake () = 0;
     };
 
@@ -69,14 +69,8 @@ namespace Control {
             }
         }
 
-        void initHuman (const std::initializer_list<std::string> &buttons);
-
     public:
-        Human (const std::initializer_list<std::string> &buttons);
-        Human (const std::string &defaultVariant);
-
-        inline void setName (const std::string &name) { name_ = name; }
-
+        Human (const std::vector<std::string> &buttons, const std::string &name);
         void setButtons ();
 
         void clearCache () override;

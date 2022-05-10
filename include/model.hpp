@@ -17,14 +17,14 @@ namespace gameModel {
 
     class Game final {
     private:
-        const int nRabbits_ = 10;
+        const int nRabbits_ = 100;
         std::mt19937 generator_{static_cast<long long unsigned> (std::chrono::system_clock::now ().time_since_epoch ().count ())};
         std::list<Control::Snake *> snakes_;
         std::set<int> rabbits_;
         std::set<int> available_;
 
         using ScoreLine = std::pair<std::string, size_t>;
-        static inline std::function<bool (ScoreLine, ScoreLine)> tablePred_ = [] (const ScoreLine &lhs, const ScoreLine &rhs) { return lhs.second > rhs.second; };
+        static inline auto tablePred_ = [] (const ScoreLine &lhs, const ScoreLine &rhs) { return lhs.second > rhs.second; };
 
         std::multiset<ScoreLine, decltype (tablePred_)> tableScore_{tablePred_};
 
@@ -42,8 +42,8 @@ namespace gameModel {
     public:
         Game ();
         ~Game ();
-        void addGamer (const Control::Human &ctrl);
-        void addGamer (const Control::StupidBot &ctrl);
+        void addGamer (const std::vector<std::string> &buttons, const std::string &name);    // add Human
+        void addBot (int typeOfBot);   // add bot
     };
 }  // namespace gameModel
 

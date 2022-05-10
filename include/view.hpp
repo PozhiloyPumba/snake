@@ -14,7 +14,7 @@
 namespace graphicInterface {
     using namespace std::chrono_literals;
 
-    class View {  // TODO: maybe add pause
+    class View {
     private:
         static inline const std::string_view textView = "text";
         static inline const std::string_view graphView = "graph";
@@ -44,6 +44,8 @@ namespace graphicInterface {
         std::function<void ()> botsHandler;
         std::function<void ()> writeScoreTable;
         std::function<void ()> resizeHandler;
+        std::function<void (const std::vector<std::string> &, const std::string &)> addPlayerHandler;
+        std::function<void (int)> addBotHandler;
 
         virtual void addButton (const std::string &button, const std::function<void ()> &handler) = 0;
         virtual void eraseButton (const std::string &button_) = 0;

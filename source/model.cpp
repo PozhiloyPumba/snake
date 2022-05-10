@@ -18,6 +18,9 @@ namespace gameModel {
         v->botsHandler = std::bind (&Game::botsHandler, this);
         v->writeScoreTable = std::bind (&Game::drawScore, this);
         v->resizeHandler = std::bind (&Game::setAvailablefields, this);
+        v->addPlayerHandler = std::bind (&Game::addGamer, this, std::placeholders::_1, std::placeholders::_2);
+        v->addBotHandler = std::bind (&Game::addBot, this, std::placeholders::_1);
+
     }
 
     Game::~Game ()
@@ -148,10 +151,16 @@ namespace gameModel {
         return false;
     }
 
-    void Game::addGamer (const Control::Human &ctrl)
+    void Game::addGamer (const std::vector<std::string> &buttons, const std::string &name)
     {
+        static int countDefault = 0;
         auto v = graphicInterface::View::get ()->getTermSize ();
-        auto *hum = new Control::Human (ctrl);
+        Control::Human *hum;
+        if (name == "") hum = new Control::Human (  buttons, 
+                                                    "Player" + std::to_string (++countDefault));
+
+        else hum = new Control::Human (buttons, name);
+
         hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
 
         std::for_each (hum->body_.begin (), hum->body_.end (), [this] (auto forErase) { available_.erase (indexFromPair (forErase)); });
@@ -160,10 +169,10 @@ namespace gameModel {
         snakes_.push_back (hum);
     }
 
-    void Game::addGamer (const Control::StupidBot &ctrl)
+    void Game::addBot (int typeOfBot)
     {
         auto v = graphicInterface::View::get ()->getTermSize ();
-        auto *bot = new Control::StupidBot (ctrl);
+        auto *bot = new Control::StupidBot ();
 
         bot->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
         snakes_.push_back (bot);

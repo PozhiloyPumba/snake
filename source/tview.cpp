@@ -107,6 +107,125 @@ namespace graphicInterface {
         fflush (stdout);
     }
 
+    void TView::menuAddPlayer ()
+    {
+        drawFrame ();
+        printf ("\e[%d;%dHEnter a name (or press enter to set default name)", termSize_.ws_row / 6, termSize_.ws_col / 2 - 25);
+        printf ("\e[%d;%dH", termSize_.ws_row / 6 + 1, termSize_.ws_col / 2);
+        fflush (stdout);
+
+        std::string name;
+        unsigned char c;
+        sym_ = {' ', ' '};
+        
+        while ((c = getchar ()) != '\n' && c != '\r') {
+            if (c == 127 && name.length ())  // 127 = delete
+                name.pop_back ();
+            else 
+                name += c;
+            
+            drawHLine (1, termSize_.ws_row / 6, virtSize_.first - 2);
+            printf ("\e[%d;%luH%s", termSize_.ws_row / 6 + 1, termSize_.ws_col / 2 - name.length () / 2, name.data ());
+        }
+        
+        drawFrame ();
+        printf ("\e[%d;%dHEnter controls:", termSize_.ws_row / 6, termSize_.ws_col / 2 - 8);
+        printf ("\e[%d;%dH1: arrows (press \"1\")", termSize_.ws_row / 6 + 1, termSize_.ws_col / 2 - 10);
+        printf ("\e[%d;%dH2: wasd (press \"2\")", termSize_.ws_row / 6 + 2, termSize_.ws_col / 2 - 9);
+        printf ("\e[%d;%dH3: custom (press \"3\")", termSize_.ws_row / 6 + 3, termSize_.ws_col / 2 - 10);
+        fflush (stdout);
+
+        read (0, &c, 1);
+        
+        switch (c) {
+            case '1':   addPlayerHandler ({"\e[A", "\e[D", "\e[B", "\e[C"}, name);  break;
+            case '2':   addPlayerHandler ({"w", "a", "s", "d"}, name);              break;
+            case '3': {
+                drawFrame ();
+                printf ("\e[%d;%dHEnter buttons (up, left, down, right):", termSize_.ws_row / 6, termSize_.ws_col / 2 - 20);
+                
+                std::vector<std::string> buttons;
+
+                for (int i = 1; i < 5; ++i) {
+                    printf ("\e[%d;%dH", termSize_.ws_row / 6 + i, termSize_.ws_col / 2);
+                    std::string button;
+                    while ((c = getchar ()) != '\n' && c != '\r') {
+                        if (c == 127 && button.length ())  // 127 = delete
+                            button.pop_back ();
+                        else 
+                            button += c;
+                        
+                        drawHLine (1, termSize_.ws_row / 6 + i, virtSize_.first - 2);
+                        printf ("\e[%d;%luH%s", termSize_.ws_row / 6 + i, termSize_.ws_col / 2 - button.length () / 2, button.data ());
+                    }
+                    buttons.push_back (button);
+                }
+                addPlayerHandler (buttons, name);
+            }  
+        }
+    }
+    
+    void TView::menuAddBot (int type)
+    {
+        drawFrame ();
+
+        printf ("\e[%d;%dHEnter a number of stupid bots", termSize_.ws_row / 6, termSize_.ws_col / 2 - 14);
+        printf ("\e[%d;%dH", termSize_.ws_row / 6 + 1, termSize_.ws_col / 2 - 1);
+        fflush (stdout);
+        
+        std::string strnumber;
+        unsigned char c;
+        sym_ = {' ', ' '};
+        
+        while ((c = getchar ()) != '\n' && c != '\r') {
+            if (c == 127 && strnumber.length ())  // 127 = delete
+                strnumber.pop_back ();
+            else 
+                strnumber += c;
+            
+            drawHLine (1, termSize_.ws_row / 6, virtSize_.first - 2);
+            printf ("\e[%d;%luH%s", termSize_.ws_row / 6 + 1, termSize_.ws_col / 2 - strnumber.length () / 2, strnumber.data ());
+        }
+
+        int number = std::atoi (strnumber.data ());
+
+        for (int i = 0; i < number; ++i)
+            addBotHandler (type);
+    }
+
+    void TView::menu ()
+    {
+        struct pollfd in = {0, POLL_IN, 0};
+
+        bool start = false;
+
+        while (!end_ && !start) {
+            drawFrame ();
+            
+            printf ("\e[%d;%dHMENU:", termSize_.ws_row / 6, termSize_.ws_col / 2 - 2);
+            printf ("\e[%d;%dH1: ADD PLAYER (print \"1\")", termSize_.ws_row / 6 + 1, termSize_.ws_col / 2 - 12);
+            printf ("\e[%d;%dH2: ADD STUPID BOT (print \"2\")", termSize_.ws_row / 6 + 2, termSize_.ws_col / 2 - 14);
+            printf ("\e[%d;%dH3: ADD SMART BOT (print \"3\")", termSize_.ws_row / 6 + 3, termSize_.ws_col / 2 - 14);
+            printf ("\e[%d;%dHpress \"q\" for quit", termSize_.ws_row / 6 + 4, termSize_.ws_col / 2 - 8);
+            printf ("\e[%d;%dHpress \"s\" for start", termSize_.ws_row / 6 + 5, termSize_.ws_col / 2 - 8);
+            printf ("\e[%d;%dH", termSize_.ws_row / 6 + 6, termSize_.ws_col / 2);
+            fflush (stdout);
+
+            if (poll (&in, 1, 200) == 1) {
+                unsigned char c;
+                read (0, &c, 1);
+                
+                switch (c) {
+                    case 's':   start = true;       break;
+                    case 'q':   endHandler ();      break;
+                    case '1':   menuAddPlayer ();   break;
+                    case '2':   menuAddBot (0);   break;
+                    case '3':   menuAddBot (1);    break;
+                }
+            }
+        }
+    }
+
     void TView::startScreen ()
     {
         using namespace std::chrono_literals;
@@ -258,6 +377,7 @@ namespace graphicInterface {
 
     void TView::run ()
     {
+        menu ();
         resizeHandler ();
         startScreen ();
         int result;

@@ -47,6 +47,9 @@ namespace graphicInterface {
         void drawBigDigit (std::integral_constant<int, 3>);
         void resizer ();
         void endHandler () override;
+        void menu ();
+        void menuAddPlayer ();
+        void menuAddBot (int type);
 
     public:
         TView ();

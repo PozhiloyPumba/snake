@@ -20,7 +20,9 @@ namespace graphicInterface {
         static inline const std::string_view graphView = "graph";
 
     protected:
+        bool alert_ = false;
         std::chrono::milliseconds tickTime_ = 200ms;
+        std::chrono::_V2::steady_clock::time_point alertTimer_;
 
     public:
         static inline std::shared_ptr<View> obj = nullptr;
@@ -37,7 +39,6 @@ namespace graphicInterface {
         virtual void paint (const Control::Snake &snake) = 0;                 // snake
         virtual void drawFrame () = 0;                                        // frame
         virtual void write (const std::pair<std::string, size_t> &line) = 0;  // text
-        virtual void endHandler () = 0;
 
         std::function<void ()> drawing;
         std::function<int ()> setCoordObjs;
@@ -45,10 +46,11 @@ namespace graphicInterface {
         std::function<void ()> writeScoreTable;
         std::function<void ()> resizeHandler;
         std::function<void (const std::vector<std::string> &, const std::string &)> addPlayerHandler;
-        std::function<void (int)> addBotHandler;
+        std::function<void (Control::Bot::TypeOfBot)> addBotHandler;
 
         virtual void addButton (const std::string &button, const std::function<void ()> &handler) = 0;
         virtual void eraseButton (const std::string &button_) = 0;
+        void alert () { alert_ = true; alertTimer_ = std::chrono::steady_clock::now (); };
     };
 }  // namespace graphicInterface
 

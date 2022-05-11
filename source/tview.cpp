@@ -165,7 +165,7 @@ namespace graphicInterface {
         }
     }
 
-    void TView::menuAddBot (int type)
+    void TView::menuAddBot (Control::Bot::TypeOfBot type)
     {
         drawFrame ();
 
@@ -202,6 +202,16 @@ namespace graphicInterface {
         while (!end_ && !start) {
             drawFrame ();
 
+            if (alert_ && std::chrono::steady_clock::now () < alertTimer_ + 1500ms) {
+                setColor (red_, black_);
+                printf ("\e[%d;%dHLAST PLAYER WASN'T ADDED BECAUSE OF REPEATED BUTTONS", termSize_.ws_row / 6 - 1, termSize_.ws_col / 2 - 26);
+                resetColor ();
+            }
+            else {
+                alert_ = false;
+                drawHLine (1, termSize_.ws_row / 6 - 1, virtSize_.first - 2);
+            }
+
             printf ("\e[%d;%dHMENU:", termSize_.ws_row / 6, termSize_.ws_col / 2 - 2);
             printf ("\e[%d;%dH1: ADD PLAYER (print \"1\")", termSize_.ws_row / 6 + 1, termSize_.ws_col / 2 - 12);
             printf ("\e[%d;%dH2: ADD STUPID BOT (print \"2\")", termSize_.ws_row / 6 + 2, termSize_.ws_col / 2 - 14);
@@ -219,8 +229,8 @@ namespace graphicInterface {
                     case 's': start = true; break;
                     case 'q': endHandler (); break;
                     case '1': menuAddPlayer (); break;
-                    case '2': menuAddBot (0); break;
-                    case '3': menuAddBot (1); break;
+                    case '2': menuAddBot (Control::Bot::TypeOfBot::STUPID); break;
+                    case '3': menuAddBot (Control::Bot::TypeOfBot::SMART); break;
                 }
             }
         }

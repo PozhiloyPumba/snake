@@ -46,10 +46,10 @@ namespace graphicInterface {
         void drawBigDigit (std::integral_constant<int, 2>);
         void drawBigDigit (std::integral_constant<int, 3>);
         void resizer ();
-        void endHandler () override;
+        void endHandler ();
         void menu ();
         void menuAddPlayer ();
-        void menuAddBot (int type);
+        void menuAddBot (Control::Bot::TypeOfBot type);
 
     public:
         TView ();
@@ -64,7 +64,12 @@ namespace graphicInterface {
         void write (const std::pair<std::string, size_t> &line) override;
         void drawFrame () override;
 
-        void addButton (const std::string &button, const std::function<void ()> &handler) override { buttonTable_.insert ({button, handler}); }
+        void addButton (const std::string &button, const std::function<void ()> &handler) override { 
+            auto res = buttonTable_.insert ({button, handler}); 
+            if (!res.second)
+                throw std::logic_error ("two buttons are the same"); 
+        }
+
         void eraseButton (const std::string &button) override
         {
             auto res = buttonTable_.find (button);

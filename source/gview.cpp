@@ -453,8 +453,8 @@ namespace graphicInterface {
                 if (arrows.pressed (event, window_, scale_) ||
                     wasd.pressed (event, window_, scale_)   ||
                     custom.pressed (event, window_, scale_)) {
-                        
-                    smallViewAfterAddingPlayer (name, Control::Snake::controlType::HUMAN);
+                    if (!alert_)
+                        smallViewAfterAddingPlayer (name, Control::Snake::controlType::HUMAN);
                     endControls = true;
                 }
             }
@@ -496,9 +496,17 @@ namespace graphicInterface {
 
         menuLegend.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
 
+        sf::Text alertLegend ("LAST PLAYER WASN'T ADDED \nBECAUSE OF REPEATED BUTTONS", font_, 20);
+        alertLegend.setFillColor (sf::Color::Red);
+        alertLegend.setOrigin (
+            alertLegend.getLocalBounds ().width / 2.0f,
+            alertLegend.getLocalBounds ().height / 2.0f);
+
+        alertLegend.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
+
         Button addGamer ({100, 100}, {700, 200}, sf::Color::Blue, "add new player", std::bind (&GView::createGamer, this));
-        Button addSmartBot ({100, 250}, {700, 350}, sf::Color::Blue, "add smart bot", std::bind (addBotHandler, 1));
-        Button addStupidBot ({100, 400}, {700, 500}, sf::Color::Blue, "add stupid bot", std::bind (addBotHandler, 0));
+        Button addSmartBot ({100, 250}, {700, 350}, sf::Color::Blue, "add smart bot", std::bind (addBotHandler, Control::Bot::TypeOfBot::SMART));
+        Button addStupidBot ({100, 400}, {700, 500}, sf::Color::Blue, "add stupid bot", std::bind (addBotHandler, Control::Bot::TypeOfBot::STUPID));
 
         bool endMenu = false;
         while (!endMenu && window_.isOpen ()) {
@@ -509,11 +517,13 @@ namespace graphicInterface {
                 if (addGamer.pressed (event, window_, scale_))
                     continue;
                 if (addSmartBot.pressed (event, window_, scale_)) {
-                    smallViewAfterAddingPlayer ("smart", Control::Snake::controlType::BOT);
+                    if (!alert_)
+                        smallViewAfterAddingPlayer ("smart", Control::Snake::controlType::BOT);
                     continue;
                 }
                 if (addStupidBot.pressed (event, window_, scale_)) {
-                    smallViewAfterAddingPlayer ("stupid", Control::Snake::controlType::BOT);
+                    if (!alert_)
+                        smallViewAfterAddingPlayer ("stupid", Control::Snake::controlType::BOT);
                     continue;
                 }
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
@@ -521,11 +531,18 @@ namespace graphicInterface {
             }
 
             window_.clear ();
-            menuLegend.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
-            window_.draw (menuLegend);
-            addGamer.draw (window_, scale_);
-            addSmartBot.draw (window_, scale_);
-            addStupidBot.draw (window_, scale_);
+
+            if (alert_ && std::chrono::steady_clock::now () < alertTimer_ + 1500ms) {
+                window_.draw (alertLegend);
+            }
+            else {
+                alert_ = false;
+                menuLegend.setPosition (window_.getView ().getCenter ().x, window_.getView ().getCenter ().y / 10);
+                window_.draw (menuLegend);
+                addGamer.draw (window_, scale_);
+                addSmartBot.draw (window_, scale_);
+                addStupidBot.draw (window_, scale_);
+            }
 
             window_.display ();
         }

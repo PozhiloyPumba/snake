@@ -58,9 +58,13 @@ namespace graphicInterface {
         void paint (const Control::Snake &snake) override;
         void write (const std::pair<std::string, size_t> &line) override;
         void drawFrame () override;
-        void endHandler () override {}
 
-        void addButton (const std::string &button, const std::function<void ()> &handler) override { buttonTable_.insert ({fromStringtoKey (button), handler}); }
+        void addButton (const std::string &button, const std::function<void ()> &handler) override { 
+            auto res = buttonTable_.insert ({fromStringtoKey (button), handler});
+            if (!res.second)
+                throw std::logic_error ("two buttons are the same");
+        }
+
         void eraseButton (const std::string &button) override
         {
             auto res = buttonTable_.find (fromStringtoKey (button));

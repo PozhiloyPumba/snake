@@ -155,33 +155,49 @@ namespace gameModel {
         static int countDefault = 0;
         auto v = graphicInterface::View::get ()->getTermSize ();
         Control::Human *hum;
-        if (name == "")
-            hum = new Control::Human (buttons,
-                                      "Player" + std::to_string (++countDefault));
+        try {
+            if (name == "")
+                hum = new Control::Human (buttons,
+                                        "Player" + std::to_string (++countDefault));
+            else
+                hum = new Control::Human (buttons, name);
 
-        else
-            hum = new Control::Human (buttons, name);
+            hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
 
-        hum->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
-
-        std::for_each (hum->body_.begin (), hum->body_.end (), [this] (auto forErase) { available_.erase (indexFromPair (forErase)); });
-
-        hum->setButtons ();
-        snakes_.push_back (hum);
+            std::for_each (hum->body_.begin (), hum->body_.end (), [this] (auto forErase) { available_.erase (indexFromPair (forErase)); });
+            
+            hum->setButtons ();
+            snakes_.push_back (hum);
+        }
+        catch (std::logic_error &e) {       // it is for fix the same buttons
+            std::cout << e.what () << std::endl;
+            graphicInterface::View::get ()->alert ();
+        }
     }
 
-    void Game::addBot (int typeOfBot)
+    void Game::addBot (Control::Bot::TypeOfBot typeOfBot)
     {
         auto v = graphicInterface::View::get ()->getTermSize ();
-        auto *bot = new Control::StupidBot ();
+        
+        auto fillBot = [&] (auto bot) {
+            bot->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
+            snakes_.push_back (bot);
 
-        bot->setSnake ({v.first / 5, (v.second / 2 + snakes_.size () * 2) % (v.second - 2) + 1});
-        snakes_.push_back (bot);
+            std::for_each (bot->body_.begin (), bot->body_.end (), [this] (auto forErase) { available_.erase (indexFromPair (forErase)); });
 
-        std::for_each (bot->body_.begin (), bot->body_.end (), [this] (auto forErase) { available_.erase (indexFromPair (forErase)); });
+            bot->setAvailable (available_);
+            bot->setFood (rabbits_);
+        };
 
-        bot->setAvailable (available_);
-        bot->setFood (rabbits_);
+        if (typeOfBot == Control::Bot::TypeOfBot::SMART) {
+            auto *bot = new Control::SmartBot ();
+            fillBot (bot);
+        }
+        else {
+            auto *bot = new Control::StupidBot ();
+            fillBot (bot);
+        }
+
     }
 
     void Game::snakeStep (Control::Snake &s)
@@ -228,7 +244,7 @@ namespace gameModel {
         while (curIt != endIt) {
             curIt = std::find_if (curIt, endIt, [] (auto &sn) { return sn->whoami == Control::Snake::controlType::BOT; });
             if (curIt != endIt) {
-                auto *bot = static_cast<Control::StupidBot *> (*(curIt++));
+                auto *bot = static_cast<Control::Bot *> (*(curIt++));
                 bot->step ();
             }
         }

@@ -6,6 +6,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <random>
+#include <chrono>
 
 namespace Control {
     using coord_t = std::pair<int, int>;
@@ -45,7 +47,7 @@ namespace Control {
 
     class Human final : public Snake {
         static inline int numberOfPlayers_ = 0;
-        std::set<std::string> buttons_;
+        std::vector<std::string> buttons_;
 
         inline void buttonHandler (dir direction)
         {
@@ -78,8 +80,8 @@ namespace Control {
         ~Human () override = default;
     };
 
-    class StupidBot final : public Snake {
-        static inline int numberOfStupidBots_ = 0;
+    class Bot : public Snake {
+    protected:
         std::set<int> *available_ = nullptr;
         std::set<int> *food_ = nullptr;
 
@@ -88,11 +90,39 @@ namespace Control {
         std::vector<int> getNeighbours (const int curCeilIndex);
 
     public:
-        StupidBot ();
+        enum class TypeOfBot {
+            SMART,
+            STUPID
+        };
+
+        TypeOfBot type_;
+
+        Bot (TypeOfBot type, const std::string &name) : Snake (controlType::BOT, name), type_ (type) {}
         void setAvailable (std::set<int> &available) { available_ = &available; }
         void setFood (std::set<int> &food) { food_ = &food; }
-        void step ();
+        virtual void step () = 0;
+        ~Bot () override;
+    };
+
+    class StupidBot final : public Bot {
+        static inline int numberOfStupidBots_ = 0;
+        std::mt19937 generator_{static_cast<long long unsigned> (std::chrono::system_clock::now ().time_since_epoch ().count ())};
+
+    public:
+        StupidBot () : Bot (TypeOfBot::STUPID, "StupidBot" + std::to_string (++numberOfStupidBots_)) {}
+
+        void step () override;
         ~StupidBot () override = default;
+    };
+
+    class SmartBot final : public Bot {
+        static inline int numberOfSmartBots_ = 0;
+
+    public:
+        SmartBot () : Bot (TypeOfBot::SMART, "SmartBot" + std::to_string (++numberOfSmartBots_)) {}
+
+        void step () override;
+        ~SmartBot () override = default;
     };
 }  // namespace Control
 

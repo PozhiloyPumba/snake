@@ -172,6 +172,7 @@ namespace gameModel {
         catch (std::logic_error &e) {       // it is for fix the same buttons
             std::cout << e.what () << std::endl;
             graphicInterface::View::get ()->alert ();
+            hum->clearCache ();
         }
     }
 

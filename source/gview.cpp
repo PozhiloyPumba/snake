@@ -320,10 +320,10 @@ namespace graphicInterface {
 
         std::vector<std::string> buttons{4, ""};
 
-        Button up = {{350, 200}, {450, 300}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin ())};
-        Button left = {{225, 325}, {325, 425}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin () + 1)};
-        Button down = {{350, 325}, {450, 425}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin () + 2)};
-        Button right = {{475, 325}, {575, 425}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin () + 3)};
+        Button up {{350, 200}, {450, 300}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin ())};
+        Button left {{225, 325}, {325, 425}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin () + 1)};
+        Button down {{350, 325}, {450, 425}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin () + 2)};
+        Button right {{475, 325}, {575, 425}, sf::Color::Blue, "", std::bind (&GView::chooserKey, this, buttons.begin () + 3)};
 
         bool endCustom = false;
 

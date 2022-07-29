@@ -40,7 +40,7 @@ namespace Control {
 
         size_t getLength () const { return body_.size (); }
 
-        virtual void clearCache () {}
+        virtual void clearCache (int numOfClearing = 4) {}
         Snake (const controlType &type, const std::string &name) : whoami (type), name_ (name) {}
         virtual ~Snake () = 0;
     };
@@ -73,9 +73,9 @@ namespace Control {
 
     public:
         Human (const std::vector<std::string> &buttons, const std::string &name);
-        void setButtons ();
+        int setButtons ();
 
-        void clearCache () override;
+        void clearCache (int numOfClearing) override;
 
         ~Human () override = default;
     };

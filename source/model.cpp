@@ -155,6 +155,8 @@ namespace gameModel {
         static int countDefault = 0;
         auto v = graphicInterface::View::get ()->getTermSize ();
         Control::Human *hum;
+        int numOfSuccessButtons = 0;
+
         try {
             if (name == "")
                 hum = new Control::Human (buttons,
@@ -166,13 +168,13 @@ namespace gameModel {
 
             std::for_each (hum->body_.begin (), hum->body_.end (), [this] (auto forErase) { available_.erase (indexFromPair (forErase)); });
             
-            hum->setButtons ();
+            numOfSuccessButtons = hum->setButtons ();
             snakes_.push_back (hum);
         }
         catch (std::logic_error &e) {       // it is for fix the same buttons
-            std::cout << e.what () << std::endl;
+            // std::cout << e.what () << std::endl;
             graphicInterface::View::get ()->alert ();
-            hum->clearCache ();
+            hum->clearCache (numOfSuccessButtons);
         }
     }
 

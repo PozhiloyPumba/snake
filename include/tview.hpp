@@ -42,7 +42,7 @@ namespace graphicInterface {
         void buttonHandler ();
         void startScreen ();
         void endScreen ();
-        void drawBigDigit (std::integral_constant<int, 1>);
+        void drawBigDigit (std::integral_constant<int, 1>); // because i want realize this by this move...
         void drawBigDigit (std::integral_constant<int, 2>);
         void drawBigDigit (std::integral_constant<int, 3>);
         void resizer ();
@@ -65,9 +65,9 @@ namespace graphicInterface {
         void drawFrame () override;
 
         void addButton (const std::string &button, const std::function<void ()> &handler) override { 
-            auto res = buttonTable_.insert ({button, handler}); 
-            if (!res.second)
+            if (buttonTable_.find (button) != buttonTable_.end ())
                 throw std::logic_error ("two buttons are the same"); 
+            buttonTable_.insert ({button, handler}); 
         }
 
         void eraseButton (const std::string &button) override

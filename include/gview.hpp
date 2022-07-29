@@ -60,9 +60,9 @@ namespace graphicInterface {
         void drawFrame () override;
 
         void addButton (const std::string &button, const std::function<void ()> &handler) override { 
-            auto res = buttonTable_.insert ({fromStringtoKey (button), handler});
-            if (!res.second)
-                throw std::logic_error ("two buttons are the same");
+            if (buttonTable_.find (fromStringtoKey (button)) != buttonTable_.end ())
+                throw std::logic_error ("two buttons are the same"); 
+            buttonTable_.insert ({fromStringtoKey (button), handler});
         }
 
         void eraseButton (const std::string &button) override

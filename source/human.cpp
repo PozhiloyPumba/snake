@@ -22,19 +22,23 @@ namespace Control {
         std::copy (buttons.begin (), buttons.end (), std::back_insert_iterator (buttons_));
     }
 
-    void Human::clearCache ()
+    void Human::clearCache (int numOfClearing)
     {
         auto v = graphicInterface::View::get ();
 
-        for (auto but : buttons_)
-            v->eraseButton (but);
+        for (int i = 0; i < numOfClearing; ++i)
+            v->eraseButton (buttons_[i]);
     }
 
-    void Human::setButtons ()
+    int Human::setButtons ()
     {
+        int numOfSuccessButtons = 0;
         auto v = graphicInterface::View::get ();
 
-        std::for_each (buttons_.begin (), buttons_.end (), [this, v, e = 0] (auto but) mutable { v->addButton (but, std::bind (&Human::buttonHandler, this, static_cast<dir> (e++))); });
+        std::for_each (buttons_.begin (), buttons_.end (), [this, v, numOfSuccessButtons, e = 0] (auto but) mutable { ++numOfSuccessButtons; 
+            v->addButton (but, std::bind (&Human::buttonHandler, this, static_cast<dir> (e++))); });
+        
+        return numOfSuccessButtons;
     }
 
     Bot::~Bot () {};
